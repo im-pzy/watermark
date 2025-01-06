@@ -1,63 +1,47 @@
 package cn.impzy.watermark;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
-    private EditText mAccount;
-    private EditText mPassword;
-    private Button mLogin;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        init();
-        initListener();
     }
-
-    private void initListener() {
-        mLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 登录按钮被点击逻辑
-                Log.d(TAG, "按钮被点击了");
-                handleLogin();
-            }
-        });
-    }
-
-    private void handleLogin() {
-        String accountText = mAccount.getText().toString().trim();
-        if (TextUtils.isEmpty(accountText)) {
-            Toast.makeText(this, "输入的账号为空", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String passwordText = mPassword.getText().toString().trim();
-        if (TextUtils.isEmpty(passwordText)) {
-            Toast.makeText(this, "输入的密码为空", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Intent intent = new Intent(this, LoginokActivity.class);
-        intent.putExtra("account", accountText);
-        intent.putExtra("password", passwordText);
+    public void login(View view) {
+        Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
     }
 
-    private void init() {
-        mAccount = (EditText) this.findViewById(R.id.account);
-        mPassword = (EditText) this.findViewById(R.id.password);
-        mLogin = (Button) this.findViewById(R.id.login);
+    public void openCamera(View view) {
+        // 第一种写法
+        Intent intent = new Intent();
+        intent.setClassName("com.android.camera", "com.android.camera.Camera");
+        startActivity(intent);
+    }
+
+    public void call(View view) {
+        // 权限检查
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 4);
+        } else {
+            Intent intent = new Intent();
+            intent.setAction("android.intent.action.CALL");
+            intent.addCategory("android.intent.category.DEFAULT");
+
+            Uri uri = Uri.parse("tel:10086");
+            intent.setData(uri);
+            startActivity(intent);
+        }
     }
 }
