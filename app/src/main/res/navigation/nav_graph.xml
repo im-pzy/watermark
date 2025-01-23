@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_addwatermark">
+
+    <fragment
+        android:id="@+id/navigation_addwatermark"
+        android:name="cn.impzy.watermark.ui.addwatermark.AddWatermarkFragment"
+        android:label="@string/title_addwatermark"
+        tools:layout="@layout/fragment_addwatermark" />
+
+    <fragment
+        android:id="@+id/navigation_fullscreenwatermark"
+        android:name="cn.impzy.watermark.ui.fullscreenwatermark.FullScreenWatermarkFragment"
+        android:label="@string/title_fullscreenwatermark"
+        tools:layout="@layout/fragment_fullscreenwatermark" />
+
+    <fragment
+        android:id="@+id/navigation_managewatermark"
+        android:name="cn.impzy.watermark.ui.managewatermark.ManageWatermarkFragment"
+        android:label="@string/title_managewatermark"
+        tools:layout="@layout/fragment_managewatermark" />
+</navigation>

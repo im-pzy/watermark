@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_addwatermark"
+        android:icon="@drawable/ic_addwatermark_white_24dp"
+        android:title="@string/title_addwatermark" />
+
+    <item
+        android:id="@+id/navigation_fullscreenwatermark"
+        android:icon="@drawable/ic_fullscreenwatermark_white_24dp"
+        android:title="@string/title_fullscreenwatermark" />
+
+    <item
+        android:id="@+id/navigation_managewatermark"
+        android:icon="@drawable/ic_managewatermark_white_24dp"
+        android:title="@string/title_managewatermark" />
+
+</menu>
