@@ -1,0 +1,4 @@
+1. originalBitmap不应该在TextWatermark类中，TextWatermark应该能让addTextWatermark和FullScreenWatermark共用
+2. 禁止屏幕旋转
+3. 显示层级：必须要在所有窗口最上层，但是是否需要导航栏有待研究
+4. 退出软件记住上一次设置
