@@ -13,6 +13,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Shader;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -60,21 +62,14 @@ public class FullScreenWatermarkFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_fullscreenwatermark, container, false);
 
 
-        // 权限检查，没有权限则跳转打开权限
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!Settings.canDrawOverlays(requireContext())) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:"+requireContext().getPackageName()));
-                startActivityForResult(intent, REQUEST_CODE_PICK_OVERLAY_PERMISSION);
-            }
-        }
-
         // 初始化windowManager
         windowManager = (WindowManager) requireContext().getSystemService(Context.WINDOW_SERVICE);
-        showWatermark();
+
 
 
         textWatermark = new TextWatermark();
+        drawTextWatermark(textWatermark);
+        //showWatermark();
 
         return view;
     }
@@ -108,6 +103,35 @@ public class FullScreenWatermarkFragment extends Fragment {
         params.y = 0;
         // 添加悬浮视图到WindowManager
         windowManager.addView(textView, params);
+    }
+
+    // 悬浮其他应用上方权限检查
+    private void checkOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(requireContext())) {
+                // 如果没有权限，则跳转到设置页面
+                Toast.makeText(requireContext(), "需要悬浮窗权限，请开启", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:"+requireContext().getPackageName()));
+                startActivityForResult(intent, REQUEST_CODE_PICK_OVERLAY_PERMISSION);
+            } else {
+                // 权限已开启，显示悬浮窗
+                showWatermark();
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_PICK_OVERLAY_PERMISSION) {
+            if (Settings.canDrawOverlays(requireContext())) {
+                // 权限已开启，创建悬浮窗
+                showWatermark();
+            } else {
+                Toast.makeText(requireContext(), "未开启悬浮窗权限，请重试", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private Bitmap drawTextWatermark(TextWatermark textWatermark) {
@@ -208,3 +232,77 @@ public class FullScreenWatermarkFragment extends Fragment {
     }
 
 }
+
+//以下是ai生成的参考代码，用来思考如何将绘制好的图层显示到屏幕上方
+
+//
+//private void createWatermarkWindow() {
+//    WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+//    if (windowManager == null) return;
+//
+//    // 创建悬浮窗布局
+//    FrameLayout watermarkLayout = new FrameLayout(this);
+//    watermarkLayout.setLayoutParams(new ViewGroup.LayoutParams(
+//            ViewGroup.LayoutParams.MATCH_PARENT,
+//            ViewGroup.LayoutParams.MATCH_PARENT));
+//    watermarkLayout.setBackgroundColor(Color.TRANSPARENT);
+//
+//    // 设置悬浮窗的参数
+//    WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+//            ViewGroup.LayoutParams.MATCH_PARENT,
+//            ViewGroup.LayoutParams.MATCH_PARENT,
+//            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+//            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
+//                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+//            PixelFormat.TRANSLUCENT);
+//
+//    // 添加悬浮窗到WindowManager
+//    windowManager.addView(watermarkLayout, params);
+//
+//    // 绘制水印
+//    drawWatermark(watermarkLayout);
+//}
+//
+//private void drawWatermark(FrameLayout watermarkLayout) {
+//    // 获取屏幕宽高
+//    DisplayMetrics displayMetrics = new DisplayMetrics();
+//    getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+//    int screenWidth = displayMetrics.widthPixels;
+//    int screenHeight = displayMetrics.heightPixels;
+//
+//    // 创建画布
+//    Bitmap bitmap = Bitmap.createBitmap(screenWidth, screenHeight, Bitmap.Config.ARGB_8888);
+//    Canvas canvas = new Canvas(bitmap);
+//
+//    // 设置画笔
+//    Paint paint = new Paint();
+//    paint.setColor(Color.GRAY);
+//    paint.setTextSize(50);
+//    paint.setAlpha(100); // 设置透明度
+//    paint.setAntiAlias(true);
+//
+//    // 获取文字宽度和高度
+//    String watermarkText = "我是水印";
+//    float textWidth = paint.measureText(watermarkText);
+//    Paint.FontMetrics fontMetrics = paint.getFontMetrics();
+//    float textHeight = fontMetrics.descent - fontMetrics.ascent;
+//
+//    // 计算每个水印的间隔
+//    float intervalX = textWidth + 50;
+//    float intervalY = textHeight + 50;
+//
+//    // 绘制水印
+//    for (int i = 0; i * intervalY < screenHeight; i++) {
+//        for (int j = 0; j * intervalX < screenWidth; j++) {
+//            float x = j * intervalX;
+//            float y = i * intervalY;
+//            canvas.save();
+//            canvas.rotate(45, x + textWidth / 2, y + textHeight / 2); // 旋转45度
+//            canvas.drawText(watermarkText, x, y - fontMetrics.ascent, paint);
+//            canvas.restore();
+//        }
+//    }
+//
+//    // 将Bitmap设置为悬浮窗的背景
+//    watermarkLayout.setBackground(new BitmapDrawable(getResources(), bitmap));
+//}
