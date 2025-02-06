@@ -41,7 +41,6 @@ import androidx.fragment.app.Fragment;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Logger;
 
 import cn.impzy.watermark.R;
 import cn.impzy.watermark.TextWatermark;

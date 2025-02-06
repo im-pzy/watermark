@@ -45,19 +45,18 @@ import java.io.IOException;
 import cn.impzy.watermark.R;
 import cn.impzy.watermark.TextWatermark;
 
-public class AddWatermarkFragment extends Fragment {
-    private TextWatermark textWatermark;
 
+public class AddWatermarkFragment extends Fragment {
     private static final int REQUEST_CODE_PICK_IMAGE = 1;
     private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 2;
+    private Bitmap originalBitmap;
+    private TextWatermark textWatermark;
     private ImageView imageView;
     private EditText textEditText;
     private SeekBar textSizeSeekBar, textColorSpinner, textAlphaSeekBar;
-    private Spinner fontSpinner;
     private SeekBar rotationAngleSeekBar;
     private Button saveButton;
 
-    private Bitmap watermarkedBitmap;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -69,7 +68,6 @@ public class AddWatermarkFragment extends Fragment {
         textSizeSeekBar = view.findViewById(R.id.textSizeSeekBar);
         //textColorSpinner = view.findViewById(R.id.textColorSpinner);
         textAlphaSeekBar = view.findViewById(R.id.textAlphaSeekBar);
-        fontSpinner = view.findViewById(R.id.fontSpinner);
         rotationAngleSeekBar = view.findViewById(R.id.rotationAngleSeekBar);
         saveButton = view.findViewById(R.id.saveButton);
 
@@ -84,9 +82,8 @@ public class AddWatermarkFragment extends Fragment {
         textSizeSeekBar.setOnSeekBarChangeListener(textSizeChangeListener);
         textAlphaSeekBar.setOnSeekBarChangeListener(textAlphaChangeListener);
         rotationAngleSeekBar.setOnSeekBarChangeListener(rotationAngleChangeListener);
-//        textColorSpinner.setOnSeekBarChangeListener(textColorChangeListener);
 
-//        fontSpinner.setOnItemSelectedListener(fontSelectedListener);
+//        textColorSpinner.setOnSeekBarChangeListener(textColorChangeListener);
 
 //        int scale = 30;
 //        int w = originalBitmap.getWidth();
@@ -119,8 +116,7 @@ public class AddWatermarkFragment extends Fragment {
             imageView.setImageURI(selectedImageUri);
             // 加载图片
             try {
-                Bitmap originalBitmap = scaleBitmap(MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), selectedImageUri));
-                textWatermark.setOriginalBitmap(originalBitmap);
+                originalBitmap = scaleBitmap(MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), selectedImageUri));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -206,8 +202,7 @@ public class AddWatermarkFragment extends Fragment {
         return singleWatermark;
     }
 
-    private Bitmap addTextWatermark(TextWatermark textWatermark) {
-        Bitmap originalBitmap = textWatermark.getOriginalBitmap();
+    private Bitmap addTextWatermark(TextWatermark textWatermark, Bitmap originalBitmap) {
         if (originalBitmap == null) {
             return null;
         }
@@ -344,7 +339,7 @@ public class AddWatermarkFragment extends Fragment {
         }
     };
     private void updateWatermark() {
-        watermarkedBitmap = addTextWatermark(textWatermark);
+        Bitmap watermarkedBitmap = addTextWatermark(textWatermark, originalBitmap);
         imageView.setImageBitmap(watermarkedBitmap);
     }
 }

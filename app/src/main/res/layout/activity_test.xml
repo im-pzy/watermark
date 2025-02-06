@@ -1,31 +1,33 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="16dp">
 
-    <com.google.android.material.chip.Chip
-        android:id="@+id/chip"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <ToggleButton
-        android:id="@+id/toggleButton"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/colorPickerButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ToggleButton" />
+        android:text="选择颜色"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 
-    <TextClock
-        android:id="@+id/textClock"
+    <TextView
+        android:id="@+id/colorDisplay"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="200dp"
+        android:layout_below="@id/colorPickerButton"
+        android:layout_marginTop="16dp"
+        android:background="#000000"
+        android:text="颜色预览"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp" />
 
     <SeekBar
-        android:id="@+id/seekBar"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:id="@+id/alphaSeekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"
-        android:progress="3" />
-
-</LinearLayout>
+        android:layout_below="@id/colorDisplay"
+        android:layout_marginTop="16dp"
+        android:max="255" />
+</RelativeLayout>

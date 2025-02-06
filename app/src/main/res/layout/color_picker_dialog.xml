@@ -1,0 +1,66 @@
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/colorGrid"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:useDefaultMargins="true"
+    android:padding="16dp">
+
+    <View
+        android:id="@+id/redColorView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@color/red" />
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:cardElevation="2dp">
+
+<!--        或者给所有颜色添加阴影-->
+
+        <View
+            android:id="@+id/whiteColorView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white" />
+    </androidx.cardview.widget.CardView>
+
+    <View
+        android:id="@+id/blackColorView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@color/black" />
+
+    <View
+        android:id="@+id/blueColorView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@color/blue" />
+
+    <View
+        android:id="@+id/purpleColorView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@color/purple" />
+
+    <View
+        android:id="@+id/greenColorView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@color/green" />
+
+    <View
+        android:id="@+id/cyanColorView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@color/cyan" />
+
+    <View
+        android:id="@+id/yellowColorView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@color/yellow" />
+</GridLayout>

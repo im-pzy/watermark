@@ -1,7 +1,5 @@
 package cn.impzy.watermark;
 
-
-import android.graphics.Bitmap;
 import android.graphics.Color;
 
 
@@ -11,7 +9,6 @@ public class TextWatermark {
     private int textColor = Color.RED;
     private int textAlpha = 128;
     private int rotationAngle = 0;
-    private Bitmap originalBitmap = null;
 
     public String getText() {
         return text;
@@ -51,13 +48,5 @@ public class TextWatermark {
 
     public void setRotationAngle(int rotationAngle) {
         this.rotationAngle = rotationAngle;
-    }
-
-    public Bitmap getOriginalBitmap() {
-        return originalBitmap;
-    }
-
-    public void setOriginalBitmap(Bitmap originalBitmap) {
-        this.originalBitmap = originalBitmap;
     }
 }
