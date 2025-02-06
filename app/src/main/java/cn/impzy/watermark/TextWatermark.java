@@ -6,9 +6,9 @@ import android.graphics.Color;
 public class TextWatermark {
     private String text = "仅用于巴拉巴拉巴拉巴拉巴拉巴拉";
     private int textSize = 30;
-    private int textColor = Color.RED;
+    private int textColor = Color.WHITE;
     private int textAlpha = 128;
-    private int rotationAngle = 0;
+    private int rotationAngle = 45;
 
     public String getText() {
         return text;

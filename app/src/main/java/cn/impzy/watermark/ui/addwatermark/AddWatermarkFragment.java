@@ -5,15 +5,18 @@ import static java.lang.Integer.max;
 import static java.lang.Integer.min;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Shader;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -27,13 +30,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -49,51 +53,112 @@ import cn.impzy.watermark.TextWatermark;
 public class AddWatermarkFragment extends Fragment {
     private static final int REQUEST_CODE_PICK_IMAGE = 1;
     private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 2;
+    private View view;  // fragment的界面
     private Bitmap originalBitmap;
     private TextWatermark textWatermark;
     private ImageView imageView;
     private EditText textEditText;
-    private SeekBar textSizeSeekBar, textColorSpinner, textAlphaSeekBar;
-    private SeekBar rotationAngleSeekBar;
+    private SeekBar textSizeSeekBar, textAlphaSeekBar, rotationAngleSeekBar;
+    private View colorSelector;
     private Button saveButton;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_addwatermark, container, false);
+        view = inflater.inflate(R.layout.fragment_addwatermark, container, false);
         textWatermark = new TextWatermark();
+
         // 初始化控件
         imageView = view.findViewById(R.id.imageView);
         textEditText = view.findViewById(R.id.textEditText);
         textSizeSeekBar = view.findViewById(R.id.textSizeSeekBar);
-        //textColorSpinner = view.findViewById(R.id.textColorSpinner);
+        textSizeSeekBar.setProgress(textWatermark.getTextSize());
         textAlphaSeekBar = view.findViewById(R.id.textAlphaSeekBar);
+        textAlphaSeekBar.setProgress(textWatermark.getTextAlpha());
         rotationAngleSeekBar = view.findViewById(R.id.rotationAngleSeekBar);
+        rotationAngleSeekBar.setProgress(textWatermark.getRotationAngle());
+        colorSelector = view.findViewById(R.id.colorSelector);
+        colorSelector.setBackgroundColor(textWatermark.getTextColor());
         saveButton = view.findViewById(R.id.saveButton);
 
-        // 控件值初始化
-        textSizeSeekBar.setProgress(textWatermark.getTextSize());
-        textAlphaSeekBar.setProgress(textWatermark.getTextAlpha());
-        rotationAngleSeekBar.setProgress(textWatermark.getRotationAngle());
-
         // 设置监听器
-        imageView.setOnClickListener(imageSelectListener);
-        textEditText.addTextChangedListener(textChangeListener);
-        textSizeSeekBar.setOnSeekBarChangeListener(textSizeChangeListener);
-        textAlphaSeekBar.setOnSeekBarChangeListener(textAlphaChangeListener);
-        rotationAngleSeekBar.setOnSeekBarChangeListener(rotationAngleChangeListener);
+        imageView.setOnClickListener(view -> selectPhoto());
+        colorSelector.setOnClickListener(v -> showColorSelectDialog());
 
-//        textColorSpinner.setOnSeekBarChangeListener(textColorChangeListener);
+        textEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-//        int scale = 30;
-//        int w = originalBitmap.getWidth();
-//        int h = originalBitmap.getHeight();
-//        this.size = Math.min(w/scale, h/scale);
-//        Log.d("addText", String.valueOf(this.size));
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                textWatermark.setText(charSequence.toString());
+                updateWatermark();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        textSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                textWatermark.setTextSize(30 + progress);
+                Log.d("TextSize", String.valueOf(textWatermark.getTextSize()));
+                updateWatermark();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        textAlphaSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                textWatermark.setTextAlpha(progress);
+                updateColorDisplay(colorSelector);
+                updateWatermark();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        rotationAngleSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                textWatermark.setRotationAngle(progress);
+                updateWatermark();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
         return view;
     }
 
-    public void selectPhoto(View view) {
+    private void selectPhoto() {
         // 运行时请求权限
         if (ContextCompat.checkSelfPermission(requireActivity(), android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_CODE_READ_EXTERNAL_STORAGE);
@@ -103,6 +168,7 @@ public class AddWatermarkFragment extends Fragment {
     }
 
     private void openAlbum() {
+        Log.d("openAlbum","yes");
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE);
     }
@@ -111,10 +177,11 @@ public class AddWatermarkFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode ==  REQUEST_CODE_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
+        Log.d("onActivityResult","yes");
+        if (requestCode == REQUEST_CODE_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
             Uri selectedImageUri = data.getData();
             imageView.setImageURI(selectedImageUri);
-            // 加载图片
+            updateWatermark();
             try {
                 originalBitmap = scaleBitmap(MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), selectedImageUri));
             } catch (IOException e) {
@@ -125,6 +192,7 @@ public class AddWatermarkFragment extends Fragment {
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Log.d("onRequestPermissionsResult","yes");
         if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openAlbum();
@@ -152,7 +220,7 @@ public class AddWatermarkFragment extends Fragment {
         if (longSide > 1080) {
             scaleFactor = 1080f / longSide;
         }
-        if (shortSide < 200){
+        if (shortSide < 200) {
             scaleFactor = 200f / shortSide;
         }
 
@@ -235,7 +303,7 @@ public class AddWatermarkFragment extends Fragment {
         return workingBitmap;
     }
 
-    public void saveBitmapToExternalFilesDir(Context context, Bitmap bitmap, String fileName) {
+    private void saveBitmapToExternalFilesDir(Context context, Bitmap bitmap, String fileName) {
         // 获取应用专属的外部存储目录
         File externalFilesDir = context.getExternalFilesDir(null);
         if (externalFilesDir != null) {
@@ -261,85 +329,38 @@ public class AddWatermarkFragment extends Fragment {
     }
 
 
-    /*控件监听器*/
-    private View.OnClickListener imageSelectListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            selectPhoto(view);
-        }
-    };
-    private TextWatcher textChangeListener = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            textWatermark.setText(charSequence.toString());
-            Log.d("Text", String.valueOf(textWatermark.getText()));
-            updateWatermark();
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-
-        }
-    };
-    private SeekBar.OnSeekBarChangeListener textSizeChangeListener = new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            textWatermark.setTextSize(30 + progress);
-            Log.d("TextSize", String.valueOf(textWatermark.getTextSize()));
-            updateWatermark();
-        }
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-
-        }
-    };
-    private SeekBar.OnSeekBarChangeListener textAlphaChangeListener = new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-            textWatermark.setTextAlpha(i);
-            Log.d("TextAlpha", String.valueOf(textWatermark.getTextAlpha()));
-            updateWatermark();
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-
-        }
-    };
-    private SeekBar.OnSeekBarChangeListener rotationAngleChangeListener = new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            textWatermark.setRotationAngle(progress);
-            updateWatermark();
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-
-        }
-    };
     private void updateWatermark() {
         Bitmap watermarkedBitmap = addTextWatermark(textWatermark, originalBitmap);
         imageView.setImageBitmap(watermarkedBitmap);
+    }
+
+    private void showColorSelectDialog() {
+        // 创建Dialog窗口
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        builder.setTitle("选择颜色");
+        View dialogView = LayoutInflater.from(requireActivity()).inflate(R.layout.color_select_dialog, null);
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+        // 为每个颜色方块设置监听器
+        GridLayout colorGrid = dialogView.findViewById(R.id.colorGrid);
+        for (int i = 0; i < colorGrid.getChildCount(); i++) {
+            CardView colorView = (CardView) colorGrid.getChildAt(i);
+            colorView.setOnClickListener(v -> {
+                // 设置文字颜色，更新activity_main界面显示的颜色，更新水印
+                textWatermark.setTextColor(colorView.getCardBackgroundColor().getDefaultColor());
+                updateColorDisplay(view.findViewById(R.id.colorSelector));
+                updateWatermark();
+                if (dialog != null && dialog.isShowing()) {
+                    dialog.dismiss(); // 关闭弹窗
+                }
+            });
+        }
+        dialog.show();
+    }
+    private void updateColorDisplay(View colorDisplay) {
+        int color = textWatermark.getTextColor();
+        int colorWithAlpha = Color.argb(textWatermark.getTextAlpha(), Color.red(color), Color.green(color), Color.blue(color));
+        colorDisplay.setBackgroundColor(colorWithAlpha);
     }
 }

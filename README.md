@@ -8,3 +8,4 @@
 8. 在图片下方设置一行工具，全屏预览、保存
 9. 将import的android改为androidx
 10. 退出软件记住上一次的设置
+11. 把addWatermarkFragment中的onRequestPermissionsResult和onActivityResult关系理清，好像onRequestPermissionsResult没用

@@ -30,4 +30,5 @@
         android:layout_below="@id/colorDisplay"
         android:layout_marginTop="16dp"
         android:max="255" />
+
 </RelativeLayout>
