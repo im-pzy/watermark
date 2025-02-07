@@ -4,7 +4,6 @@ import static android.app.Activity.RESULT_OK;
 import static java.lang.Integer.max;
 import static java.lang.Integer.min;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -16,8 +15,8 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Shader;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
@@ -35,8 +34,12 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -52,7 +55,7 @@ import cn.impzy.watermark.TextWatermark;
 
 public class AddWatermarkFragment extends Fragment {
     private static final int REQUEST_CODE_PICK_IMAGE = 1;
-    private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 2;
+    private static final int REQUEST_CODE_READ_MEDIA_IMAGES = 2;
     private View view;  // fragment的界面
     private Bitmap originalBitmap;
     private TextWatermark textWatermark;
@@ -80,6 +83,23 @@ public class AddWatermarkFragment extends Fragment {
         colorSelector = view.findViewById(R.id.colorSelector);
         colorSelector.setBackgroundColor(textWatermark.getTextColor());
         saveButton = view.findViewById(R.id.saveButton);
+
+        // 注册intent启动器
+        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        // 获取返回的结果
+                        Uri selectedImageUri = data.getData();
+                        imageView.setImageURI(selectedImageUri);
+                        updateWatermark();
+                        try {
+                            originalBitmap = scaleBitmap(MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), selectedImageUri));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
 
         // 设置监听器
         imageView.setOnClickListener(view -> selectPhoto());
@@ -159,12 +179,14 @@ public class AddWatermarkFragment extends Fragment {
     }
 
     private void selectPhoto() {
-        // 运行时请求权限
-        if (ContextCompat.checkSelfPermission(requireActivity(), android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_CODE_READ_EXTERNAL_STORAGE);
+        // 点击选择照片时请求权限
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] {android.Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_CODE_READ_MEDIA_IMAGES);
+            openAlbum();
         } else {
             openAlbum();
         }
+        openAlbum();
     }
 
     private void openAlbum() {
@@ -183,21 +205,22 @@ public class AddWatermarkFragment extends Fragment {
             imageView.setImageURI(selectedImageUri);
             updateWatermark();
             try {
-                originalBitmap = scaleBitmap(MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), selectedImageUri));
+                originalBitmap = scaleBitmap(MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), selectedImageUri));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
+    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         Log.d("onRequestPermissionsResult","yes");
-        if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE) {
+        if (requestCode == REQUEST_CODE_READ_MEDIA_IMAGES) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openAlbum();
             } else {
-                Toast.makeText(requireActivity(), "请允许读取存储权限", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "请允许读取存储权限", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -336,9 +359,9 @@ public class AddWatermarkFragment extends Fragment {
 
     private void showColorSelectDialog() {
         // 创建Dialog窗口
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("选择颜色");
-        View dialogView = LayoutInflater.from(requireActivity()).inflate(R.layout.color_select_dialog, null);
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.color_select_dialog, null);
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
 
