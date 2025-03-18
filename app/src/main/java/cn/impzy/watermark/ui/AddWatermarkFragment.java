@@ -1,4 +1,4 @@
-package cn.impzy.watermark.ui.addwatermark;
+package cn.impzy.watermark.ui;
 
 import static android.app.Activity.RESULT_OK;
 import static java.lang.Integer.max;
@@ -16,7 +16,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
@@ -35,13 +34,9 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+
 import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -56,7 +51,6 @@ import cn.impzy.watermark.TextWatermark;
 public class AddWatermarkFragment extends Fragment {
     private static final int REQUEST_CODE_PICK_IMAGE = 1;
     private static final int REQUEST_CODE_READ_MEDIA_IMAGES = 2;
-    private View view;  // fragment的界面
     private Bitmap originalBitmap;
     private TextWatermark textWatermark;
     private ImageView imageView;
@@ -65,15 +59,20 @@ public class AddWatermarkFragment extends Fragment {
     private View colorSelector;
     private Button saveButton;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_addwatermark, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_addwatermark, container, false);
+        initViews(view);
+        setupListeners();
+        return view;
+    }
+
+    private void initViews(View view) {
         textWatermark = new TextWatermark();
 
         // 初始化控件
         imageView = view.findViewById(R.id.imageView);
-        textEditText = view.findViewById(R.id.textEditText);
+        textEditText = view.findViewById(R.id.textInputLayout);
         textSizeSeekBar = view.findViewById(R.id.textSizeSeekBar);
         textSizeSeekBar.setProgress(textWatermark.getTextSize());
         textAlphaSeekBar = view.findViewById(R.id.textAlphaSeekBar);
@@ -83,24 +82,9 @@ public class AddWatermarkFragment extends Fragment {
         colorSelector = view.findViewById(R.id.colorSelector);
         colorSelector.setBackgroundColor(textWatermark.getTextColor());
         saveButton = view.findViewById(R.id.saveButton);
+    }
 
-        // 注册intent启动器
-        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK) {
-                        // 获取返回的结果
-                        Uri selectedImageUri = data.getData();
-                        imageView.setImageURI(selectedImageUri);
-                        updateWatermark();
-                        try {
-                            originalBitmap = scaleBitmap(MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), selectedImageUri));
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
-
+    private void setupListeners() {
         // 设置监听器
         imageView.setOnClickListener(view -> selectPhoto());
         colorSelector.setOnClickListener(v -> showColorSelectDialog());
@@ -175,8 +159,26 @@ public class AddWatermarkFragment extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        return view;
     }
+
+//        // 注册intent启动器
+//        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                result -> {
+//                    if (result.getResultCode() == RESULT_OK) {
+//                        // 获取返回的结果
+//                        Uri selectedImageUri = data.getData();
+//                        imageView.setImageURI(selectedImageUri);
+//                        updateWatermark();
+//                        try {
+//                            originalBitmap = scaleBitmap(MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), selectedImageUri));
+//                        } catch (IOException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                    }
+//                });
+
+
 
     private void selectPhoto() {
         // 点击选择照片时请求权限

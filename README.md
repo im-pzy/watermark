@@ -9,3 +9,7 @@
 9. 将import的android改为androidx
 10. 退出软件记住上一次的设置
 11. 把addWatermarkFragment中的onRequestPermissionsResult和onActivityResult关系理清，好像onRequestPermissionsResult没用
+12. 模板功能好像灭有太大用处，可以考虑删除掉，但是可以增加水印添加记录功能
+13. 模板不应该是水印参数的模板，而应该是项目，包含图片和水印参数，方便下次直接调用
+14. 导出打印格式：应该先弹出编辑窗口进行排版，然后有分享按钮或者保存到相册，保存为PDF
+15. 图片水印后续再开发，放到一个单独的导航栏里面，水印可以平铺，可以是在某个角落；水印支持手写；图片水印有存储库，方便调用管理

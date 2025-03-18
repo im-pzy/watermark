@@ -1,4 +1,4 @@
-package cn.impzy.watermark.ui.managewatermark;
+package cn.impzy.watermark.ui;
 
 import androidx.fragment.app.Fragment;
 
