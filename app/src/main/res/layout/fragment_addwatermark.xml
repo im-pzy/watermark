@@ -23,48 +23,12 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#E0E0E0"
-            app:cardCornerRadius="8dp">
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/watermarkTypeTabLayout"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                app:tabMode="fixed"
-                app:tabGravity="fill"
-                app:tabIndicatorHeight="0dp"
-                app:tabBackground="@drawable/tab_selector"
-                app:tabTextColor="#757575"
-                app:tabSelectedTextColor="#2196F3"
-                app:tabRippleColor="@android:color/transparent">
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="文字水印">
-
-                </com.google.android.material.tabs.TabItem>
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="图片水印"/>
-
-            </com.google.android.material.tabs.TabLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- 文字水印 -->
         <LinearLayout
             android:id="@+id/textWatermarkTab"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputLayout"
                 android:layout_width="match_parent"
@@ -77,54 +41,55 @@
                     android:hint="输入水印文字"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <LinearLayout
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" >
+                android:layout_marginTop="16dp"
+                android:paddingVertical="8dp">
+
                 <TextView
+                    android:id="@+id/textColorLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="文本颜色"/>
+                    android:text="文本颜色"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
                 <androidx.cardview.widget.CardView
                     android:id="@+id/colorSelector"
                     android:layout_width="80dp"
                     android:layout_height="30dp"
-                    android:layout_marginVertical="1dp"
-                    android:layout_marginHorizontal="10dp"/>
-                <Switch
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintStart_toEndOf="@id/textColorLabel"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <TextView
+                    android:id="@+id/showTimeLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="          显示时间   " />
-            </LinearLayout>
-        </LinearLayout>
+                    android:text="显示当前时间"
+                    android:layout_marginStart="16dp"
+                    app:layout_constraintStart_toEndOf="@id/colorSelector"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <!-- 图片水印 -->
-        <LinearLayout
-            android:id="@+id/imageWatermarkTab"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/showTimeSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintStart_toEndOf="@id/showTimeLabel"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
-            <Button
-                android:id="@+id/selectWatermarkImageButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="选择水印图片" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <ImageView
-                android:id="@+id/watermarkImagePreview"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginTop="8dp"
-                android:scaleType="centerCrop"
-                android:background="#F5F5F5"/>
         </LinearLayout>
 
 
-        <!-- 共同调节部分 -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -165,34 +130,33 @@
 
 
 
-
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp">
+        android:layout_marginTop="16dp">
         <Button
             android:id="@+id/saveTemplateButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="5dp"
-            android:text="保存到证件夹" />
+            android:layout_weight="1"
+            android:text="证件夹"
+            android:layout_marginEnd="8dp"/>
         <Button
             android:id="@+id/savePDFButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="5dp"
-            android:text="打印" />
+            android:layout_weight="1"
+            android:text="保存为打印格式"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="保存到相册" />
     </LinearLayout>
 
-
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="保存图片" />
 
     </LinearLayout>
 

@@ -40,6 +40,8 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.textfield.TextInputLayout;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -51,17 +53,18 @@ import cn.impzy.watermark.TextWatermark;
 public class AddWatermarkFragment extends Fragment {
     private static final int REQUEST_CODE_PICK_IMAGE = 1;
     private static final int REQUEST_CODE_READ_MEDIA_IMAGES = 2;
+    private View view;  // fragment的界面
     private Bitmap originalBitmap;
     private TextWatermark textWatermark;
     private ImageView imageView;
-    private EditText textEditText;
+    private EditText watermarkText;
     private SeekBar textSizeSeekBar, textAlphaSeekBar, rotationAngleSeekBar;
     private View colorSelector;
     private Button saveButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_addwatermark, container, false);
+        view = inflater.inflate(R.layout.fragment_addwatermark, container, false);
         initViews(view);
         setupListeners();
         return view;
@@ -72,7 +75,7 @@ public class AddWatermarkFragment extends Fragment {
 
         // 初始化控件
         imageView = view.findViewById(R.id.imageView);
-        textEditText = view.findViewById(R.id.textInputLayout);
+        watermarkText = view.findViewById(R.id.watermarkText);
         textSizeSeekBar = view.findViewById(R.id.textSizeSeekBar);
         textSizeSeekBar.setProgress(textWatermark.getTextSize());
         textAlphaSeekBar = view.findViewById(R.id.textAlphaSeekBar);
@@ -89,7 +92,7 @@ public class AddWatermarkFragment extends Fragment {
         imageView.setOnClickListener(view -> selectPhoto());
         colorSelector.setOnClickListener(v -> showColorSelectDialog());
 
-        textEditText.addTextChangedListener(new TextWatcher() {
+        watermarkText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
