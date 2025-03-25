@@ -25,6 +25,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".TestActivity" />
+
+        <service
+            android:name=".services.FullWatermarkService"
+            android:exported="false" />
     </application>
 
 </manifest>
