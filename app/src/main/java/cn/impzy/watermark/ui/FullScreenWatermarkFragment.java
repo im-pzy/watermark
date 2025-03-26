@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,8 +27,6 @@ import cn.impzy.watermark.TextWatermark;
 import cn.impzy.watermark.services.FullWatermarkService;
 
 public class FullScreenWatermarkFragment extends Fragment {
-
-    private TextWatermark textWatermark;
     private EditText watermarkText;
     private View colorSelector;
     private Switch timeSwitch;
@@ -35,7 +34,7 @@ public class FullScreenWatermarkFragment extends Fragment {
     private SeekBar rotationAngleSeekBar;
     private SeekBar textAlphaSeekBar;
     private Button showButton;
-    private boolean isWatermarkEnabled = false;
+    private boolean isWatermarkEnabled = false;     // 如果切换fragement，就会导致其又变回false
 
 
     private static final int REQUEST_CODE_PICK_IMAGE = 1;
@@ -61,15 +60,15 @@ public class FullScreenWatermarkFragment extends Fragment {
     private void setupListeners() {
         // 开启/关闭水印按钮
         showButton.setOnClickListener(view -> {
-            // 切换状态
-            isWatermarkEnabled = !isWatermarkEnabled;
-            if (isWatermarkEnabled) {
-                if (checkOverlayPermission()) {
+            if (checkOverlayPermission()) {
+                isWatermarkEnabled = !isWatermarkEnabled;
+                if (isWatermarkEnabled) {
                     startWatermarkService();
                     showButton.setText("关闭水印");
                 } else {
                     stopWatermarkService();
                     showButton.setText("开启水印");
+                    // 再变个颜色
                 }
             }
         });
@@ -88,8 +87,8 @@ public class FullScreenWatermarkFragment extends Fragment {
                     startWatermarkService();
                 } else {
                     isWatermarkEnabled = false;
-                    showButton.setText("开启水印");     // 权限被拒绝时
-                    Toast.makeText(requireContext(), "需要开启悬浮窗权限才能显示全屏水印", Toast.LENGTH_SHORT).show();       // 是否多余
+                    //showButton.setText("开启水印");     // 权限被拒绝时
+                    Toast.makeText(requireContext(), "请开启悬浮窗权限", Toast.LENGTH_SHORT).show();       // 是否多余
                 }
             }
         };
@@ -117,14 +116,16 @@ public class FullScreenWatermarkFragment extends Fragment {
     // 悬浮其他应用上方权限检查
     private boolean checkOverlayPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {       // 处理SYSTEM_ALERT_WINDOW权限兼容
-            if (!Settings.canDrawOverlays(requireContext())) {
-                Toast.makeText(requireContext(), "需要开启悬浮窗权限才能显示全屏水印", Toast.LENGTH_SHORT).show();
-                // 如果没有权限，则跳转到设置页面
+            if (!Settings.canDrawOverlays(requireContext())) {      // 如果没有悬浮窗权限
+                Toast.makeText(requireContext(), "请开启悬浮窗权限", Toast.LENGTH_SHORT).show();
+                // 跳转到设置页面
                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:"+requireContext().getPackageName()));
+                // 能否直接跳转到这个app的所有权限界面设置
                 startActivityForResult(intent, REQUEST_CODE_PICK_OVERLAY_PERMISSION);
+                Toast.makeText(requireContext(), "请选择\"印\"并开启权限", Toast.LENGTH_SHORT).show();
+                return false;
             }
-            return false;
         }
         return true;
     }
@@ -149,6 +150,7 @@ public class FullScreenWatermarkFragment extends Fragment {
         intent.putExtra("text_size", textSizeSeekBar.getProgress());
         intent.putExtra("rotation_angle", rotationAngleSeekBar.getProgress());
         intent.putExtra("text_alpha", textAlphaSeekBar.getProgress());
+        Log.d("ceshi", String.valueOf(textSizeSeekBar.getProgress()));
         requireContext().startService(intent);
     }
 
