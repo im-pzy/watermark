@@ -5,19 +5,20 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:useDefaultMargins="true"
+    android:columnCount="6"
     android:padding="16dp">
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/redColorView"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        app:cardBackgroundColor="@color/red" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/whiteColorView"
         android:layout_width="40dp"
         android:layout_height="40dp"
         app:cardBackgroundColor="@color/white" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/redColorView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:cardBackgroundColor="@color/red" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/blackColorView"

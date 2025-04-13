@@ -83,7 +83,6 @@ public class AddWatermarkFragment extends Fragment {
         rotationAngleSeekBar = view.findViewById(R.id.rotationAngleSeekBar);
         rotationAngleSeekBar.setProgress(textWatermark.getRotationAngle());
         colorSelector = view.findViewById(R.id.colorSelector);
-        colorSelector.setBackgroundColor(textWatermark.getTextColor());
         saveButton = view.findViewById(R.id.saveButton);
     }
 
@@ -133,7 +132,7 @@ public class AddWatermarkFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 textWatermark.setTextAlpha(progress);
-                updateColorDisplay(colorSelector);
+                updateColorDisplay();
                 updateWatermark();
             }
 
@@ -377,7 +376,7 @@ public class AddWatermarkFragment extends Fragment {
             colorView.setOnClickListener(v -> {
                 // 设置文字颜色，更新activity_main界面显示的颜色，更新水印
                 textWatermark.setTextColor(colorView.getCardBackgroundColor().getDefaultColor());
-                updateColorDisplay(view.findViewById(R.id.colorSelector));
+                updateColorDisplay();
                 updateWatermark();
                 if (dialog != null && dialog.isShowing()) {
                     dialog.dismiss(); // 关闭弹窗
@@ -386,9 +385,10 @@ public class AddWatermarkFragment extends Fragment {
         }
         dialog.show();
     }
-    private void updateColorDisplay(View colorDisplay) {
-        int color = textWatermark.getTextColor();
-        int colorWithAlpha = Color.argb(textWatermark.getTextAlpha(), Color.red(color), Color.green(color), Color.blue(color));
-        colorDisplay.setBackgroundColor(colorWithAlpha);
+    // 更新colorSelector界面显示的颜色
+    private void updateColorDisplay() {
+        int textColor = textWatermark.getTextColor();
+        int colorWithAlpha = Color.argb(textWatermark.getTextAlpha(), Color.red(textColor), Color.green(textColor), Color.blue(textColor));
+        colorSelector.setBackgroundColor(colorWithAlpha);
     }
 }

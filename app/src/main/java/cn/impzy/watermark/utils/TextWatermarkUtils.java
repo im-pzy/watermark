@@ -1,8 +1,5 @@
 package cn.impzy.watermark.utils;
 
-import static android.content.Context.WINDOW_SERVICE;
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
@@ -13,7 +10,6 @@ import android.graphics.Shader;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.util.DisplayMetrics;
-import android.view.WindowManager;
 
 import cn.impzy.watermark.TextWatermark;
 
@@ -28,19 +24,24 @@ public class TextWatermarkUtils {
         textPaint.setTextAlign(Paint.Align.LEFT);   // 对齐方式
 
         // 计算文字的宽度和高度
-        String watermarkText = textWatermark.getText();
-        String[] text = watermarkText.split("\n");
+        String text = textWatermark.getText();
+        String[] texts = text.split("\n");
         float maxWidth = 0f;
-        for (String line : text) {
+        for (String line : texts) {
             if (textPaint.measureText(line) > maxWidth) {
                 maxWidth = textPaint.measureText(line);
             }
         }
         float textWidth = maxWidth;
 
-        StaticLayout.Builder builder = StaticLayout.Builder.obtain(watermarkText, 0, watermarkText.length(), textPaint, (int) Math.ceil(textWidth));
+        StaticLayout.Builder builder = StaticLayout.Builder.obtain(text, 0, text.length(), textPaint, (int) Math.ceil(textWidth));
         StaticLayout staticLayout = builder.build();
         float textHeight = staticLayout.getHeight();
+
+        // 添加水印间距
+        int spaceScale = textWatermark.getSpaceScale();
+        textWidth += textWidth * spaceScale / 500;
+        textHeight += textHeight * spaceScale / 100;
 
         Bitmap singleWatermark = Bitmap.createBitmap((int) Math.ceil(textWidth), (int) Math.ceil(textHeight), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(singleWatermark);

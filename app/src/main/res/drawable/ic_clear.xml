@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 浅灰色圆形背景 -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#F5F5F5" />
+            <size android:width="20dp" android:height="20dp" />
+        </shape>
+    </item>
+
+    <!-- 白色X形状图标 -->
+    <item
+        android:left="5dp"
+        android:top="5dp"
+        android:right="5dp"
+        android:bottom="5dp">
+        <vector
+            android:width="10dp"
+            android:height="10dp"
+            android:viewportWidth="24"
+            android:viewportHeight="24">
+            <path
+                android:fillColor="#FFFFFF"
+                android:strokeWidth="4"
+                android:pathData="M18,6L6,18 M6,6L18,18"
+                android:strokeColor="#FFFFFF"
+                android:strokeLineCap="round"/>
+        </vector>
+    </item>
+</layer-list>

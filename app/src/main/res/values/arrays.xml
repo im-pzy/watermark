@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="time_format_spinner">
+        <item>关闭</item>
+        <item>时间</item>
+        <item>日期</item>
+    </string-array>
+    <string-array name="expire_date_spinner">
+        <item>分</item>
+        <item>时</item>
+        <item>天</item>
+        <item>月</item>
+        <item>年</item>
+    </string-array>
+</resources>

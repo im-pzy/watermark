@@ -2,13 +2,16 @@ package cn.impzy.watermark;
 
 import android.graphics.Color;
 
+import java.io.Serializable;
 
-public class TextWatermark {
-    private String text = "仅用于巴拉巴拉巴拉巴拉巴拉巴拉";
-    private int textSize = 30;
-    private int textColor = Color.WHITE;
-    private int textAlpha = 128;
-    private int rotationAngle = 45;
+
+public class TextWatermark implements Serializable{
+    private String text;
+    private int textSize;
+    private int textColor;
+    private int textAlpha;
+    private int rotationAngle;
+    private int spaceScale;
 
     public String getText() {
         return text;
@@ -48,5 +51,31 @@ public class TextWatermark {
 
     public void setRotationAngle(int rotationAngle) {
         this.rotationAngle = rotationAngle;
+    }
+    public int getSpaceScale() {
+        return spaceScale;
+    }
+    public void setSpaceScale(int spaceScale) {
+        this.spaceScale = spaceScale;
+    }
+
+    // 无参构造
+    public TextWatermark() {
+        this.text = "";
+        this.textSize = 30;
+        this.textColor = Color.WHITE;
+        this.textAlpha = 200;
+        this.rotationAngle = 315;
+        this.spaceScale = 0;
+    }
+
+    // 有参构造
+    public TextWatermark(String text, int textSize, int textColor, int textAlpha, int rotationAngle, int spaceScale) {
+        this.text = text;
+        this.textSize = textSize;
+        this.textColor = textColor;
+        this.textAlpha = textAlpha;
+        this.rotationAngle = rotationAngle;
+        this.spaceScale = spaceScale;
     }
 }
