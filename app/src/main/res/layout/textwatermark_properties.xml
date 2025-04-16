@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!--    需要自动加载上一次默认的文字颜色和大小-->
+    <!--    颜色设置常用色，同时可以自定义-->
+    <!--    水印文字添加常用语-->
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/watermarkEditTextLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="输入水印文字"
+        app:counterEnabled="true"
+        app:endIconMode="clear_text"
+        app:endIconDrawable="@drawable/ic_clear"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/watermarkEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="文本颜色"/>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/colorSelector"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginVertical="1dp" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="文本大小"/>
+    <!-- min属性在26以下不可用-->
+    <SeekBar
+        android:id="@+id/textSizeSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:min="1"
+        android:max="100" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="旋转角度"/>
+    <SeekBar
+        android:id="@+id/rotationAngleSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="360" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="不透明度"/>
+    <SeekBar
+        android:id="@+id/textAlphaSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="255" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="水印间距"/>
+    <SeekBar
+        android:id="@+id/spaceScaleSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="200" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="追加当前" />
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/timeTypeSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_weight="2"
+            android:paddingStart="10dp"
+            android:background="@drawable/spinner_background"
+            android:entries="@array/time_format_spinner" />
+
+        <TextView
+            android:id="@+id/expireLable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:text="，有效期" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/expireNumEditText"
+                android:layout_width="60dp"
+                android:layout_height="32dp"
+                android:padding="0dp"
+                android:gravity="center"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/expireUnitSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:paddingStart="5dp"
+            android:paddingEnd="10dp"
+            android:background="@drawable/spinner_background"
+            android:entries="@array/expire_date_spinner" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,27 +1,16 @@
 package cn.impzy.watermark.services;
 
-import static androidx.core.content.ContentProviderCompat.requireContext;
-import static androidx.core.content.ContextCompat.getSystemService;
 import static cn.impzy.watermark.utils.TextWatermarkUtils.drawFullScreenTextWatermark;
 
 import android.app.Service;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
-
-import org.w3c.dom.Text;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import cn.impzy.watermark.TextWatermark;
 
@@ -29,13 +18,11 @@ public class FullWatermarkService extends Service {
     private WindowManager windowManager;
     private ImageView watermarkView;
     TextWatermark textWatermark;
-    private boolean isWindowAdded = false;
 
-    // 不需要绑定
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
+    }       // 不需要绑定
 
     @Override
     public void onCreate() {
@@ -78,13 +65,6 @@ public class FullWatermarkService extends Service {
         int screenWidth = displayMetrics.widthPixels;
         int screenHeight = displayMetrics.heightPixels;
         Point screenSize = new Point(screenWidth, screenHeight);
-
-        // 设置时间格式
-        //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        // 格式化当前时间（这里注意内存销毁）
-        //String formattedTime = sdf.format(new Date());
-        //textWatermark.setText(formattedTime);
-
         watermarkView.setImageBitmap(drawFullScreenTextWatermark(textWatermark, screenSize));
     }
 

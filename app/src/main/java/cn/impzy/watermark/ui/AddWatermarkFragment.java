@@ -75,7 +75,7 @@ public class AddWatermarkFragment extends Fragment {
 
         // 初始化控件
         imageView = view.findViewById(R.id.imageView);
-        watermarkText = view.findViewById(R.id.watermarkText);
+        watermarkText = view.findViewById(R.id.watermarkEditText);
         textSizeSeekBar = view.findViewById(R.id.textSizeSeekBar);
         textSizeSeekBar.setProgress(textWatermark.getTextSize());
         textAlphaSeekBar = view.findViewById(R.id.textAlphaSeekBar);

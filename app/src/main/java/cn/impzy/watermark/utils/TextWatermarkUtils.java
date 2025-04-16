@@ -11,9 +11,14 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.util.DisplayMetrics;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import cn.impzy.watermark.TextWatermark;
 
 public class TextWatermarkUtils {
+    private static final String[] expireUnitText = {"分钟","小时","天","个月","年"};
     // 创建单个水印
     public static Bitmap createSingleTextWatermarkBitmap(TextWatermark textWatermark) {
         TextPaint textPaint = new TextPaint();
@@ -23,8 +28,26 @@ public class TextWatermarkUtils {
         textPaint.setAntiAlias(true);   // 抗锯齿
         textPaint.setTextAlign(Paint.Align.LEFT);   // 对齐方式
 
-        // 计算文字的宽度和高度
+        // 设置水印文本
         String text = textWatermark.getText();
+        String time = "";
+        int timeType = textWatermark.getTimeType();
+        String expireNum = textWatermark.getExpireNum();
+        int expireUnit = textWatermark.getExpireUnit();
+        switch (timeType) {
+            case 0: // off
+                break;
+            case 1: // datetime
+                time = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(new Date());
+                text += "\n" + time + "\n" + "有效期" + expireNum + expireUnitText[expireUnit];
+                break;
+            case 2: // date
+                time = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
+                text += "\n" + time + "\n" + "有效期" + expireNum + expireUnitText[expireUnit];
+                break;
+        }
+
+        // 计算文字的宽度和高度
         String[] texts = text.split("\n");
         float maxWidth = 0f;
         for (String line : texts) {
