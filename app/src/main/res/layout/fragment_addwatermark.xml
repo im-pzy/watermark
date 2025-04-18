@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
-    <!--    需要自动加载上一次默认的文字颜色和大小-->
-    <!--    颜色设置常用色，同时可以自定义-->
 
     <ImageView
         android:id="@+id/imageView"
@@ -14,139 +10,44 @@
         android:layout_height="250dp"
         android:background="@color/grey" />
 
-    <!--    水印文字添加常用语-->
-
-    <!-- 控制面板 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
 
+        <include
+            android:id="@+id/textWatermarkProperties"
+            layout="@layout/textwatermark_properties"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <LinearLayout
-            android:id="@+id/textWatermarkTab"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+            android:layout_marginTop="16dp">
+            <Button
+                android:id="@+id/saveTemplateButton"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:paddingVertical="8dp">
+                android:layout_weight="1"
+                android:text="证件夹"
+                android:layout_marginEnd="8dp"/>
+            <Button
+                android:id="@+id/savePDFButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="保存为打印格式"
+                android:layout_marginEnd="8dp"/>
 
-                <TextView
-                    android:id="@+id/textColorLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="文本颜色"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/colorSelector"
-                    android:layout_width="80dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="8dp"
-                    app:layout_constraintStart_toEndOf="@id/textColorLabel"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent" />
-
-                <TextView
-                    android:id="@+id/showTimeLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="显示当前时间"
-                    android:layout_marginStart="16dp"
-                    app:layout_constraintStart_toEndOf="@id/colorSelector"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/showTimeSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    app:layout_constraintStart_toEndOf="@id/showTimeLabel"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
+            <Button
+                android:id="@+id/saveButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="保存到相册" />
         </LinearLayout>
 
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="大小"/>
-        <SeekBar
-            android:id="@+id/textSizeSeekBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:progress="25"
-            android:max="50" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="透明度"/>
-        <SeekBar
-            android:id="@+id/textAlphaSeekBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:progress="30"
-            android:max="255" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="旋转角度"/>
-        <SeekBar
-            android:id="@+id/rotationAngleSeekBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:progress="45"
-            android:max="360" />
-
-
-
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp">
-        <Button
-            android:id="@+id/saveTemplateButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="证件夹"
-            android:layout_marginEnd="8dp"/>
-        <Button
-            android:id="@+id/savePDFButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="保存为打印格式"
-            android:layout_marginEnd="8dp"/>
-
-        <Button
-            android:id="@+id/saveButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="保存到相册" />
     </LinearLayout>
-
-
-    </LinearLayout>
-
 </LinearLayout>
-

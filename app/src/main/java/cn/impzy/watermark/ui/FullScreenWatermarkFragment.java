@@ -1,8 +1,6 @@
 package cn.impzy.watermark.ui;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -11,7 +9,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,12 +25,7 @@ import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textfield.TextInputLayout;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 import cn.impzy.watermark.R;
 import cn.impzy.watermark.TextWatermark;
@@ -44,10 +36,7 @@ public class FullScreenWatermarkFragment extends Fragment {
     private TextInputLayout watermarkEditTextLayout;
     private EditText watermarkEditText;
     private View colorSelector;
-    private SeekBar textSizeSeekBar;
-    private SeekBar rotationAngleSeekBar;
-    private SeekBar textAlphaSeekBar;
-    private SeekBar spaceScaleSeekBar;
+    private SeekBar textSizeSeekBar,rotationAngleSeekBar,textAlphaSeekBar,spaceScaleSeekBar;
     private AppCompatSpinner timeTypeSpinner;
     private TextView expireLable;
     private EditText expireNumEditText;
@@ -66,7 +55,7 @@ public class FullScreenWatermarkFragment extends Fragment {
 
     private void initViews(View view) {
         watermarkEditTextLayout = view.findViewById(R.id.watermarkEditTextLayout);
-        watermarkEditText = view.findViewById(R.id.watermarkEditText);          // 这里会不会和添加水印里面的id重复
+        watermarkEditText = view.findViewById(R.id.watermarkEditText);
         colorSelector = view.findViewById(R.id.colorSelector);
         textSizeSeekBar = view.findViewById(R.id.textSizeSeekBar);
         rotationAngleSeekBar = view.findViewById(R.id.rotationAngleSeekBar);
@@ -95,6 +84,7 @@ public class FullScreenWatermarkFragment extends Fragment {
         watermarkEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 // 权限检查、水印内容合法性检验，合法则将输入内容传递给水印类并自动开启水印
@@ -104,6 +94,7 @@ public class FullScreenWatermarkFragment extends Fragment {
                     stopWatermarkService();
                 }
             }
+
             @Override
             public void afterTextChanged(Editable editable) { }
         });
@@ -133,6 +124,7 @@ public class FullScreenWatermarkFragment extends Fragment {
                     int selectedColor = colorView.getCardBackgroundColor().getDefaultColor();
                     // 设置文字颜色
                     textWatermark.setTextColor(selectedColor);
+                    // 更新界面显示颜色
                     updateColorDisplay();
                     // 更新水印
                     if(isWatermarkEnabled) {

@@ -75,7 +75,6 @@ public class TextWatermarkUtils {
 
     // 旋转单个水印
     public static Bitmap rotateBitmap(Bitmap bitmap, int rotationAngle) {
-        // canvas有rotate方法
         Matrix matrix = new Matrix();
         matrix.setRotate(rotationAngle, bitmap.getWidth() / 2.0f, bitmap.getHeight() / 2.0f);
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
@@ -99,13 +98,10 @@ public class TextWatermarkUtils {
         paint.setShader(new BitmapShader(rotatedWatermarkBitmap, tileMode, tileMode));
         canvas.drawRect(canvas.getClipBounds(), paint);
 
-
-        //saveBitmapToExternalFilesDir(this, workingBitmap, "my_bitmap.png");
-
         return workingBitmap;
     }
     public static Bitmap drawAddTextWatermark() {
-
+        //saveBitmapToExternalFilesDir(this, workingBitmap, "my_bitmap.png");
         return null;
     }
 }
