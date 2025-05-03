@@ -1,6 +1,7 @@
 package cn.impzy.watermark.ui;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -20,12 +22,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
-
-import com.google.android.material.textfield.TextInputLayout;
 
 import cn.impzy.watermark.R;
 import cn.impzy.watermark.TextWatermark;
@@ -33,16 +32,15 @@ import cn.impzy.watermark.services.FullWatermarkService;
 
 public class FullScreenWatermarkFragment extends Fragment {
     private TextWatermark textWatermark = new TextWatermark();
-    private TextInputLayout watermarkEditTextLayout;
     private EditText watermarkEditText;
     private View colorSelector;
     private SeekBar textSizeSeekBar,rotationAngleSeekBar,textAlphaSeekBar,spaceScaleSeekBar;
     private AppCompatSpinner timeTypeSpinner;
-    private TextView expireLable;
+    private TextView expireLabel;
     private EditText expireNumEditText;
     private AppCompatSpinner expireUnitSpinner;
     private Button showButton;
-    private boolean isWatermarkEnabled = false;     // 如果切换fragement，就会导致其又变回false
+    private boolean isWatermarkEnabled = false;
     private static final int REQUEST_CODE_PICK_OVERLAY_PERMISSION = 1;
 
     @Override
@@ -54,7 +52,6 @@ public class FullScreenWatermarkFragment extends Fragment {
     }
 
     private void initViews(View view) {
-        watermarkEditTextLayout = view.findViewById(R.id.watermarkEditTextLayout);
         watermarkEditText = view.findViewById(R.id.watermarkEditText);
         colorSelector = view.findViewById(R.id.colorSelector);
         textSizeSeekBar = view.findViewById(R.id.textSizeSeekBar);
@@ -62,13 +59,12 @@ public class FullScreenWatermarkFragment extends Fragment {
         textAlphaSeekBar = view.findViewById(R.id.textAlphaSeekBar);
         spaceScaleSeekBar = view.findViewById(R.id.spaceScaleSeekBar);
         timeTypeSpinner = view.findViewById(R.id.timeTypeSpinner);
-        expireLable = view.findViewById(R.id.expireLable);
+        expireLabel = view.findViewById(R.id.expireLabel);
         expireNumEditText = view.findViewById(R.id.expireNumEditText);
         expireUnitSpinner = view.findViewById(R.id.expireUnitSpinner);
         showButton = view.findViewById(R.id.showButton);
 
         // 初始化按钮的值
-        watermarkEditText.setText(textWatermark.getText());
         colorSelector.setBackgroundColor(textWatermark.getTextAlpha() << 24 | textWatermark.getTextColor() & 0xFFFFFF);
         textSizeSeekBar.setProgress(textWatermark.getTextSize());
         rotationAngleSeekBar.setProgress(textWatermark.getRotationAngle());
@@ -86,25 +82,28 @@ public class FullScreenWatermarkFragment extends Fragment {
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // 权限检查、水印内容合法性检验，合法则将输入内容传递给水印类并自动开启水印
-                if (checkOverlayPermission() && checkWatermarkText()) {
-                    startWatermarkService();
-                } else {
-                    stopWatermarkService();
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                // 非用户实际输入
+                if (!watermarkEditText.hasFocus()) {
+                    return;
                 }
+                // 权限检查
+                if (!checkOverlayPermission()) {
+                    return;
+                }
+                // 水印内容判空(trim()放到if中，是为了可以通过换行调整水印间距)
+                String editText = charSequence.toString();
+                if (editText.trim().isEmpty()) {
+                    stopWatermarkService();
+                    return;
+                }
+                // 水印内容不为空，将输入框内容传递给水印类并自动开启水印
+                textWatermark.setText(editText);
+                startWatermarkService();
             }
 
             @Override
             public void afterTextChanged(Editable editable) { }
-        });
-        // ！这里需要修改，让输入框失去焦点后，取消错误提示（我已经确认了必须要切换fragment才能失去焦点）
-        // 然后还需要处理两个问题：1.有错误提示的时候，光标消失  2.从别的fragment切换到这个fragment时，由于水印文本默认是空的，又会自动触发错误
-        watermarkEditText.setOnFocusChangeListener((view, hasFocus) -> {
-            if (!hasFocus) {
-                Toast.makeText(requireContext(), "我失去焦点啦", Toast.LENGTH_SHORT).show();
-                watermarkEditTextLayout.setError(null);
-            }
         });
 
         // 颜色选择
@@ -205,13 +204,20 @@ public class FullScreenWatermarkFragment extends Fragment {
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 textWatermark.setTimeType(position);
                 if (position == 0) {
-                    expireLable.setEnabled(false);
+                    expireLabel.setEnabled(false);
                     expireNumEditText.setEnabled(false);
                     expireUnitSpinner.setEnabled(false);
                 } else {
-                    expireLable.setEnabled(true);
+                    expireLabel.setEnabled(true);
                     expireNumEditText.setEnabled(true);
                     expireUnitSpinner.setEnabled(true);
+                    // 根据不同的timeType设置有效期单位
+                    int arrayResId = (position == 1) ?
+                            R.array.expire_datetime_spinner:
+                            R.array.expire_date_spinner;
+                    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(requireContext(), arrayResId, android.R.layout.simple_spinner_dropdown_item);
+                    expireUnitSpinner.setAdapter(adapter);
+                    expireUnitSpinner.setSelection(textWatermark.getExpireUnit());
                 }
                 if (isWatermarkEnabled) {
                     startWatermarkService();
@@ -257,13 +263,23 @@ public class FullScreenWatermarkFragment extends Fragment {
 
         // 开启关闭水印按钮
         showButton.setOnClickListener(view -> {
-            // 权限检查、水印内容合法性检验
-            if (checkOverlayPermission() && checkWatermarkText()) {
-                if (!isWatermarkEnabled) {
-                    startWatermarkService();
-                } else {
-                    stopWatermarkService();
-                }
+            // 权限检查
+            if (!checkOverlayPermission()) {
+                return;
+            }
+            // 水印内容判空
+            String editText = watermarkEditText.getText().toString().trim();
+            if (editText.isEmpty()) {
+                Toast.makeText(requireContext(), "水印内容为空", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // 设置水印内容
+            textWatermark.setText(editText);
+            // 按钮逻辑
+            if (!isWatermarkEnabled) {
+                startWatermarkService();
+            } else {
+                stopWatermarkService();
             }
         });
     }
@@ -285,19 +301,6 @@ public class FullScreenWatermarkFragment extends Fragment {
         return true;
     }
 
-    // 文本内容合法性检验
-    private boolean checkWatermarkText() {
-        // 输入框水印为空
-        if (watermarkEditText.getText().toString().trim().isEmpty()) {
-            watermarkEditTextLayout.setError("水印内容为空");
-            return false;
-        } else {
-            watermarkEditTextLayout.setError(null);
-            textWatermark.setText(watermarkEditText.getText().toString());
-            return true;
-        }
-    }
-
     // 更新colorSelector界面显示的颜色
     private void updateColorDisplay() {
         int textColor = textWatermark.getTextColor();
@@ -306,7 +309,7 @@ public class FullScreenWatermarkFragment extends Fragment {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_PICK_OVERLAY_PERMISSION) {
             if (Settings.canDrawOverlays(requireContext())) {
@@ -318,24 +321,33 @@ public class FullScreenWatermarkFragment extends Fragment {
     }
 
     private void startWatermarkService() {
+        if (textWatermark.getText().isEmpty()) {
+            return;
+        }
         Intent intent = new Intent(requireContext(), FullWatermarkService.class);
         intent.putExtra("text_watermark", textWatermark);
-        requireContext().startService(intent);
-        isWatermarkEnabled = true;
-        showButton.setText("关闭水印");
-        showButton.setSelected(true);
+        ComponentName startFlag = requireContext().startService(intent);
+        if (startFlag != null) {
+            isWatermarkEnabled = true;
+            showButton.setText("关闭水印");
+            showButton.setSelected(true);
+        }
     }
 
     private void stopWatermarkService() {
-        requireContext().stopService(new Intent(requireContext(), FullWatermarkService.class));
-        isWatermarkEnabled = false;
-        showButton.setText("开启水印");
-        showButton.setSelected(false);
+        boolean stopFlag = requireContext().stopService(new Intent(requireContext(), FullWatermarkService.class));
+        if (stopFlag) {
+            isWatermarkEnabled = false;
+            showButton.setText("开启水印");
+            showButton.setSelected(false);
+        }
     }
+
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        // 关闭水印
         stopWatermarkService();
+        super.onDestroy();
     }
 }

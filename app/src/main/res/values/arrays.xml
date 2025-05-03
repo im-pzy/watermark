@@ -5,11 +5,16 @@
         <item>时间</item>
         <item>日期</item>
     </string-array>
-    <string-array name="expire_date_spinner">
-        <item>分</item>
-        <item>时</item>
-        <item>天</item>
-        <item>月</item>
+    <string-array name="expire_datetime_spinner">
         <item>年</item>
+        <item>月</item>
+        <item>天</item>
+        <item>时</item>
+        <item>分</item>
+    </string-array>
+    <string-array name="expire_date_spinner">
+        <item>年</item>
+        <item>月</item>
+        <item>天</item>
     </string-array>
 </resources>
