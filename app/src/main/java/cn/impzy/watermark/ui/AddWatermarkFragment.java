@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
+
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -47,6 +48,8 @@ import cn.impzy.watermark.utils.TextWatermarkUtils;
 
 import static cn.impzy.watermark.utils.TextWatermarkUtils.drawTextWatermark;
 import static cn.impzy.watermark.utils.TextWatermarkUtils.scaleBitmap;
+
+import com.google.android.material.snackbar.Snackbar;
 
 
 public class AddWatermarkFragment extends Fragment {
@@ -266,6 +269,17 @@ public class AddWatermarkFragment extends Fragment {
 
         // 保存按钮
         saveButton.setOnClickListener(view -> {
+            // 没有选择图片
+            if (originalBitmap == null) {
+                Toast.makeText(requireContext(), "请先选择图片", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // 水印内容判空
+            String editText = watermarkEditText.getText().toString().trim();
+            if (editText.isEmpty()) {
+                Toast.makeText(requireContext(), "水印内容为空", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (checkStoragePermission()) {
                 saveBitmapToExternalFilesDir(requireContext(), watermarkedBitmap);
             }
@@ -286,7 +300,6 @@ public class AddWatermarkFragment extends Fragment {
     }
 
     private void openAlbum() {
-        Log.d("openAlbum","yes");
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE);
     }
@@ -362,11 +375,11 @@ public class AddWatermarkFragment extends Fragment {
         Uri imageUri = context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
         try {
-            if (imageUri != null) {
+            if (imageUri != null && bitmap != null) {
                 // 保存图片
                 try (OutputStream outputStream = context.getContentResolver().openOutputStream(imageUri)) {
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                    Toast.makeText(requireContext(), "图片已保存："+fileName, Toast.LENGTH_SHORT).show();
+                    Snackbar.make(requireView(), "图片已保存到：Pictures/印/" + fileName, Snackbar.LENGTH_LONG).show();
                 }
             }
         } catch (IOException e) {

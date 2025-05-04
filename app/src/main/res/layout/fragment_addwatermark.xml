@@ -4,70 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <FrameLayout
+    <ImageView
+        android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:background="@color/grey"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <ImageButton
-                android:id="@+id/prevImageButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:src="@drawable/ic_arrow_back"
-                android:background="@android:color/transparent"/>
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="20"/>
-
-            <ImageButton
-                android:id="@+id/nextImageButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:src="@drawable/ic_arrow_forward"
-                android:background="@android:color/transparent"/>
-        </LinearLayout>
-
-    </FrameLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp">
-
-        <Button
-            android:id="@+id/importFromGalleryButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="从图库导入"
-            android:layout_marginEnd="8dp"/>
-
-        <Button
-            android:id="@+id/importFromDocButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="从证件夹导入"/>
-
-    </LinearLayout>
+        android:layout_height="250dp"
+        android:background="@color/grey"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -81,32 +22,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <LinearLayout
+        <Button
+            android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp">
-            <Button
-                android:id="@+id/saveTemplateButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="证件夹"
-                android:layout_marginEnd="8dp"/>
-            <Button
-                android:id="@+id/savePDFButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="打印格式"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
-                android:id="@+id/saveButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="保存到相册" />
-        </LinearLayout>
+            android:layout_marginTop="16dp"
+            android:text="保存到相册" />
 
     </LinearLayout>
 </LinearLayout>

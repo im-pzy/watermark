@@ -16,10 +16,4 @@
         android:name="cn.impzy.watermark.ui.FullScreenWatermarkFragment"
         android:label="@string/title_fullscreenwatermark"
         tools:layout="@layout/fragment_fullscreenwatermark" />
-
-    <fragment
-        android:id="@+id/navigation_managewatermark"
-        android:name="cn.impzy.watermark.ui.ManageWatermarkFragment"
-        android:label="@string/title_managewatermark"
-        tools:layout="@layout/fragment_managewatermark" />
 </navigation>

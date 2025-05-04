@@ -2,5 +2,4 @@
     <string name="app_name">印</string>
     <string name="title_addwatermark">图片水印</string>
     <string name="title_fullscreenwatermark">全屏水印</string>
-    <string name="title_managewatermark">管理水印</string>
 </resources>
