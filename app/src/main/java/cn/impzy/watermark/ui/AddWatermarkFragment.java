@@ -43,6 +43,8 @@ import java.util.Objects;
 
 import cn.impzy.watermark.R;
 import cn.impzy.watermark.TextWatermark;
+import cn.impzy.watermark.utils.TextWatermarkUtils;
+
 import static cn.impzy.watermark.utils.TextWatermarkUtils.drawTextWatermark;
 import static cn.impzy.watermark.utils.TextWatermarkUtils.scaleBitmap;
 
@@ -348,7 +350,7 @@ public class AddWatermarkFragment extends Fragment {
         fileName.append(textWatermark.getText().replaceAll("\n","_").replaceAll("[\\\\/:*?\"<>|]",""));
         if (textWatermark.getTimeType() > 0) {
             fileName.append("-").append(textWatermark.getTimeString().replaceAll("[/: ]", ""));
-            fileName.append("-有效期").append(textWatermark.getExpireNum()).append(textWatermark.getExpireUnit());
+            fileName.append("-有效期").append(textWatermark.getExpireNum()).append(TextWatermarkUtils.EXPIRE_UNIT_DATETIME[textWatermark.getExpireUnit()]);
         }
         fileName.append(".png");
 
