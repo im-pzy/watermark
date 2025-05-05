@@ -286,19 +286,18 @@ public class FullScreenWatermarkFragment extends Fragment {
 
     // 悬浮其他应用上方权限检查
     private boolean checkOverlayPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {       // 处理SYSTEM_ALERT_WINDOW权限兼容
-            if (!Settings.canDrawOverlays(requireContext())) {      // 如果没有悬浮窗权限
-                Toast.makeText(requireContext(), "请开启悬浮窗权限", Toast.LENGTH_SHORT).show();
-                // 跳转到设置页面
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:"+requireContext().getPackageName()));
-                // 能否直接跳转到这个app的所有权限界面设置
-                startActivityForResult(intent, REQUEST_CODE_PICK_OVERLAY_PERMISSION);
-                Toast.makeText(requireContext(), "请选择\"印\"并开启权限", Toast.LENGTH_SHORT).show();
-                return false;
-            }
+        if (!Settings.canDrawOverlays(requireContext())) {      // 如果没有悬浮窗权限
+            Toast.makeText(requireContext(), "请开启悬浮窗权限", Toast.LENGTH_SHORT).show();
+            // 跳转到设置页面
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:"+requireContext().getPackageName()));
+            // 能否直接跳转到这个app的所有权限界面设置
+            startActivityForResult(intent, REQUEST_CODE_PICK_OVERLAY_PERMISSION);
+            Toast.makeText(requireContext(), "请选择\"印\"并开启权限", Toast.LENGTH_SHORT).show();
+            return false;
+        } else {
+            return true;
         }
-        return true;
     }
 
     // 更新colorSelector界面显示的颜色

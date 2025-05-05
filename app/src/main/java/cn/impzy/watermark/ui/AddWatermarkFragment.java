@@ -11,7 +11,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
 
-import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,10 +32,13 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.exifinterface.media.ExifInterface;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -67,7 +69,8 @@ public class AddWatermarkFragment extends Fragment {
     private Button saveButton;
     private static final int REQUEST_CODE_PICK_IMAGE = 1;
     private static final int REQUEST_CODE_READ_MEDIA_IMAGES = 2;
-    private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 3;
+    private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 3;
+    private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 4;
 
 
     @Override
@@ -105,7 +108,11 @@ public class AddWatermarkFragment extends Fragment {
 
     private void setupListeners() {
         // 图片选择监听器
-        imageView.setOnClickListener(view -> selectPhoto());
+        imageView.setOnClickListener(view -> {
+            if (checkReadImagePermission()) {
+                openAlbum();
+            }
+        });
 
         // 文本输入框实时更新水印
         watermarkEditText.addTextChangedListener(new TextWatcher() {
@@ -287,18 +294,6 @@ public class AddWatermarkFragment extends Fragment {
 
     }
 
-    private void selectPhoto() {
-        // 如果没有照片访问权限
-        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-            // 请求权限并打开相册
-            requestPermissions(new String[] {android.Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_CODE_READ_MEDIA_IMAGES);
-            //openAlbum();
-        } else {
-            // 有权限则直接打开
-            openAlbum();
-        }
-    }
-
     private void openAlbum() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE);
@@ -389,6 +384,26 @@ public class AddWatermarkFragment extends Fragment {
         // 还要写入exif信息：水印内容，水印添加时间，添加软件名，水印参数
     }
 
+    // 检查读取图片权限
+    private boolean checkReadImagePermission() {
+        // API 33以上请求READ_MEDIA_IMAGES
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // 没有READ_MEDIA_IMAGES权限
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(requireActivity(), new String[]{android.Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_CODE_READ_MEDIA_IMAGES);
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(requireActivity(), new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE_READ_EXTERNAL_STORAGE);
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
 
     // 检查外部存储权限
     private boolean checkStoragePermission() {
@@ -397,7 +412,7 @@ public class AddWatermarkFragment extends Fragment {
             return true;
         }
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[] {android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
+                ActivityCompat.requestPermissions(requireActivity(), new String[] {android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
             return false;
         }
         return true;
@@ -405,10 +420,11 @@ public class AddWatermarkFragment extends Fragment {
 
     // 检查外部存储权限结果回调
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         // 读取图片权限回调
-        if (requestCode == REQUEST_CODE_READ_MEDIA_IMAGES) {
+        if (requestCode == REQUEST_CODE_READ_MEDIA_IMAGES || requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE) {
+            // 如果有权限
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openAlbum();
             } else {
@@ -418,8 +434,6 @@ public class AddWatermarkFragment extends Fragment {
         // 外部存储写入权限回调
         if (requestCode == REQUEST_CODE_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(requireContext(), "存储权限已授予", Toast.LENGTH_SHORT).show();
-                // 权限获取成功后继续保存操作
                 saveBitmapToExternalFilesDir(requireContext(), watermarkedBitmap);
             } else {
                 Toast.makeText(requireContext(), "需要存储权限才能保存图片", Toast.LENGTH_SHORT).show();
@@ -427,7 +441,6 @@ public class AddWatermarkFragment extends Fragment {
         }
 
     }
-
 
     private void updateWatermark() {
         watermarkedBitmap = drawTextWatermark(textWatermark, originalBitmap);
