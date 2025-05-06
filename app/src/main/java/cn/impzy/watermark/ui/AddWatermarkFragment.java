@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -32,14 +31,15 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.exifinterface.media.ExifInterface;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Objects;
@@ -67,10 +67,6 @@ public class AddWatermarkFragment extends Fragment {
     private Bitmap originalBitmap;
     private Bitmap watermarkedBitmap;
     private Button saveButton;
-    private static final int REQUEST_CODE_PICK_IMAGE = 1;
-    private static final int REQUEST_CODE_READ_MEDIA_IMAGES = 2;
-    private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 3;
-    private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 4;
 
 
     @Override
@@ -109,9 +105,12 @@ public class AddWatermarkFragment extends Fragment {
     private void setupListeners() {
         // 图片选择监听器
         imageView.setOnClickListener(view -> {
-            if (checkReadImagePermission()) {
-                openAlbum();
-            }
+            // Android 13及以上使用READ_MEDIA_IMAGES，以下使用READ_EXTERNAL_STORAGE
+            String permission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ?
+                    android.Manifest.permission.READ_MEDIA_IMAGES :
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE;
+            // 检查权限并执行对应代码
+            requestPermissionLauncher.launch(permission);
         });
 
         // 文本输入框实时更新水印
@@ -287,38 +286,15 @@ public class AddWatermarkFragment extends Fragment {
                 Toast.makeText(requireContext(), "水印内容为空", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (checkStoragePermission()) {
-                saveBitmapToExternalFilesDir(requireContext(), watermarkedBitmap);
-            }
+            // 检查权限并执行对应代码
+            checkStoragePermission();
         });
 
     }
 
     private void openAlbum() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE);
-    }
-
-    // 接收Intent回调结果
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
-            Uri selectedImageUri = data.getData();
-            try {
-                // 先缩放图片
-                originalBitmap = scaleBitmap(MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), selectedImageUri));
-                // 再旋转
-                correctDirection(selectedImageUri);
-                updateWatermark();
-            } catch (IOException e) {
-                Log.e("ImageLoading", "图片加载失败", e);
-                Toast.makeText(requireContext(), "图片加载失败，请重试", Toast.LENGTH_SHORT).show();
-            } catch (OutOfMemoryError e) {
-                Log.e("ImageLoading", "内存不足", e);
-                Toast.makeText(requireContext(), "图片太大，内存不足", Toast.LENGTH_SHORT).show();
-            }
-        }
+        pickImageLauncher.launch(intent);
     }
 
     // 纠正图片显示方向
@@ -362,85 +338,100 @@ public class AddWatermarkFragment extends Fragment {
         }
         fileName.append(".png");
 
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName.toString());
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/印");
+        // Android 10 及以上使用MediaStore API
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName.toString());
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/印");
 
-        Uri imageUri = context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            Uri imageUri = context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
-        try {
-            if (imageUri != null && bitmap != null) {
-                // 保存图片
-                try (OutputStream outputStream = context.getContentResolver().openOutputStream(imageUri)) {
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                    Snackbar.make(requireView(), "图片已保存到：Pictures/印/" + fileName, Snackbar.LENGTH_LONG).show();
+            try {
+                if (imageUri != null && bitmap != null) {
+                    // 保存图片
+                    try (OutputStream outputStream = context.getContentResolver().openOutputStream(imageUri)) {
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                        Snackbar.make(requireView(), "图片已保存到：Pictures/印/" + fileName, Snackbar.LENGTH_LONG).show();
+                    }
                 }
-            }
-        } catch (IOException e) {
-            Log.e("WatermarkPicSave", "图片保存失败", e);
-            Toast.makeText(requireContext(), "图片保存失败", Toast.LENGTH_SHORT).show();
-        }
-        // 还要写入exif信息：水印内容，水印添加时间，添加软件名，水印参数
-    }
-
-    // 检查读取图片权限
-    private boolean checkReadImagePermission() {
-        // API 33以上请求READ_MEDIA_IMAGES
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // 没有READ_MEDIA_IMAGES权限
-            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(requireActivity(), new String[]{android.Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_CODE_READ_MEDIA_IMAGES);
-                return false;
-            } else {
-                return true;
+            } catch (IOException e) {
+                Log.e("WatermarkPicSave", "图片保存失败", e);
+                Toast.makeText(requireContext(), "图片保存失败", Toast.LENGTH_SHORT).show();
             }
         } else {
-            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(requireActivity(), new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE_READ_EXTERNAL_STORAGE);
-                return false;
-            } else {
-                return true;
+            // Android 10以下使用传统文件系统API
+            File picturesDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "印");
+            if (!picturesDir.exists() && !picturesDir.mkdirs()) {
+                Toast.makeText(requireContext(), "创建目录失败", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            File imageFile = new File(picturesDir, fileName.toString());
+            try {
+                try (FileOutputStream fos = new FileOutputStream(imageFile)) {
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    // 通知媒体库更新
+                    context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));
+                    Snackbar.make(requireView(), "图片已保存到：Pictures/印/" + fileName, Snackbar.LENGTH_LONG).show();
+                }
+            } catch (IOException e) {
+                Log.e("WatermarkPicSave", "图片保存失败", e);
+                Toast.makeText(requireContext(), "图片保存失败", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
+    // 打开图库请求结果回调
+    private final ActivityResultLauncher<Intent> pickImageLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri selectedImageUri = result.getData().getData();
+                    try {
+                        // 先缩放图片
+                        originalBitmap = scaleBitmap(MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), selectedImageUri));
+                        // 再旋转
+                        correctDirection(selectedImageUri);
+                        updateWatermark();
+                    } catch (IOException e) {
+                        Log.e("ImageLoading", "图片加载失败", e);
+                        Toast.makeText(requireContext(), "图片加载失败，请重试", Toast.LENGTH_SHORT).show();
+                    } catch (OutOfMemoryError e) {
+                        Log.e("ImageLoading", "内存不足", e);
+                        Toast.makeText(requireContext(), "图片太大，内存不足", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+    // 读取图库权限请求结果回调
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    openAlbum();
+                } else {
+                    Toast.makeText(requireContext(), "请允许读取存储权限", Toast.LENGTH_SHORT).show();
+                }
+            });
 
     // 检查外部存储权限
-    private boolean checkStoragePermission() {
+    private void checkStoragePermission() {
         // Android 10及以上使用MediaStore API不需要存储权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return true;
+            saveBitmapToExternalFilesDir(requireContext(), watermarkedBitmap);
+        } else {
+            storagePermissionLauncher.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
-        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(requireActivity(), new String[] {android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
-            return false;
-        }
-        return true;
     }
 
-    // 检查外部存储权限结果回调
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        // 读取图片权限回调
-        if (requestCode == REQUEST_CODE_READ_MEDIA_IMAGES || requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE) {
-            // 如果有权限
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                openAlbum();
-            } else {
-                Toast.makeText(requireContext(), "请允许读取存储权限", Toast.LENGTH_SHORT).show();
-            }
-        }
-        // 外部存储写入权限回调
-        if (requestCode == REQUEST_CODE_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                saveBitmapToExternalFilesDir(requireContext(), watermarkedBitmap);
-            } else {
-                Toast.makeText(requireContext(), "需要存储权限才能保存图片", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-    }
+    // 存储权限请求结果回调
+    private final ActivityResultLauncher<String> storagePermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    saveBitmapToExternalFilesDir(requireContext(), watermarkedBitmap);
+                } else {
+                    Toast.makeText(requireContext(), "需要存储权限才能保存图片", Toast.LENGTH_SHORT).show();
+                }
+            });
 
     private void updateWatermark() {
         watermarkedBitmap = drawTextWatermark(textWatermark, originalBitmap);

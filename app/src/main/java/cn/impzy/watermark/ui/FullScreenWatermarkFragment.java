@@ -22,6 +22,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
@@ -41,7 +43,7 @@ public class FullScreenWatermarkFragment extends Fragment {
     private AppCompatSpinner expireUnitSpinner;
     private Button showButton;
     private boolean isWatermarkEnabled = false;
-    private static final int REQUEST_CODE_PICK_OVERLAY_PERMISSION = 1;
+    private static final int REQUEST_CODE_PICK_OVERLAY_PERMISSION = 1001;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -292,7 +294,7 @@ public class FullScreenWatermarkFragment extends Fragment {
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:"+requireContext().getPackageName()));
             // 能否直接跳转到这个app的所有权限界面设置
-            startActivityForResult(intent, REQUEST_CODE_PICK_OVERLAY_PERMISSION);
+            overlayPermissionLauncher.launch(intent);
             Toast.makeText(requireContext(), "请选择\"印\"并开启权限", Toast.LENGTH_SHORT).show();
             return false;
         } else {
@@ -300,23 +302,21 @@ public class FullScreenWatermarkFragment extends Fragment {
         }
     }
 
+    // 请求悬浮其他应用上方权限回调函数
+    private final ActivityResultLauncher<Intent> overlayPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (Settings.canDrawOverlays(requireContext())) {
+                    Toast.makeText(requireContext(), "悬浮窗权限已开启", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(requireContext(), "未成功开启悬浮窗权限，请重试", Toast.LENGTH_SHORT).show();
+                }
+            });
+
     // 更新colorSelector界面显示的颜色
     private void updateColorDisplay() {
         int textColor = textWatermark.getTextColor();
         int colorWithAlpha = Color.argb(textWatermark.getTextAlpha(), Color.red(textColor), Color.green(textColor), Color.blue(textColor));
         colorSelector.setBackgroundColor(colorWithAlpha);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_PICK_OVERLAY_PERMISSION) {
-            if (Settings.canDrawOverlays(requireContext())) {
-                Toast.makeText(requireContext(), "悬浮窗权限已开启", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(requireContext(), "未成功开启悬浮窗权限，请重试", Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     private void startWatermarkService() {
