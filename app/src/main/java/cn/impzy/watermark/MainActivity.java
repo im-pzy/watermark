@@ -31,9 +31,11 @@ public class MainActivity extends AppCompatActivity {
         // 导航控制器
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment);
-        NavController navController = navHostFragment.getNavController();
-        // 导航栏与控制器的联动
-        NavigationUI.setupWithNavController(bottomNavigationView, navController);
+        if (navHostFragment != null) {
+            NavController navController = navHostFragment.getNavController();
+            // 导航栏与控制器的联动
+            NavigationUI.setupWithNavController(bottomNavigationView, navController);
+        }
     }
 
     @Override

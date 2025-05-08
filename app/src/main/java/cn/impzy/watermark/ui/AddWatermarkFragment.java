@@ -55,7 +55,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 
 public class AddWatermarkFragment extends Fragment {
-    private TextWatermark textWatermark = TextWatermark.forAddWatermark();
+    private final TextWatermark textWatermark = TextWatermark.forAddWatermark();
     private ImageView imageView;
     private EditText watermarkEditText;
     private View colorSelector;
@@ -351,7 +351,9 @@ public class AddWatermarkFragment extends Fragment {
                 if (imageUri != null && bitmap != null) {
                     // 保存图片
                     try (OutputStream outputStream = context.getContentResolver().openOutputStream(imageUri)) {
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                        if (outputStream != null) {
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                        }
                         Snackbar.make(requireView(), "图片已保存到：Pictures/印/" + fileName, Snackbar.LENGTH_LONG).show();
                     }
                 }

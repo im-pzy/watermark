@@ -1,14 +1,17 @@
 package cn.impzy.watermark.ui;
 
 import android.app.AlertDialog;
-import android.content.ComponentName;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +28,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import cn.impzy.watermark.R;
@@ -32,7 +36,7 @@ import cn.impzy.watermark.TextWatermark;
 import cn.impzy.watermark.services.FullWatermarkService;
 
 public class FullScreenWatermarkFragment extends Fragment {
-    private TextWatermark textWatermark = new TextWatermark();
+    private final TextWatermark textWatermark = new TextWatermark();
     private EditText watermarkEditText;
     private View colorSelector;
     private SeekBar textSizeSeekBar,rotationAngleSeekBar,textAlphaSeekBar,spaceScaleSeekBar;
@@ -41,7 +45,9 @@ public class FullScreenWatermarkFragment extends Fragment {
     private EditText expireNumEditText;
     private AppCompatSpinner expireUnitSpinner;
     private Button showButton;
-    private boolean isWatermarkEnabled = false;
+    private boolean isWatermarkShowing = false;
+    private BroadcastReceiver serviceStatusReceiver;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -76,6 +82,27 @@ public class FullScreenWatermarkFragment extends Fragment {
     }
 
     private void setupListeners() {
+        // 广播接收器
+        serviceStatusReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (FullWatermarkService.ACTION_SERVICE_STARTED.equals(action)) {
+                    // 水印服务已启动
+                    Log.d("WatermarkDebug", "接收到Service启动广播");
+                    isWatermarkShowing = true;
+                    showButton.setText("关闭水印");
+                    showButton.setSelected(true);
+                } else if (FullWatermarkService.ACTION_SERVICE_DESTROYED.equals(action)) {
+                    // 水印服务被销毁
+                    Log.d("WatermarkDebug", "接收到Service销毁广播");
+                    isWatermarkShowing = false;
+                    showButton.setText("开启水印");
+                    showButton.setSelected(false);
+                }
+            }
+        };
+
         // 文本输入框实时更新水印
         watermarkEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -126,7 +153,7 @@ public class FullScreenWatermarkFragment extends Fragment {
                     // 更新界面显示颜色
                     updateColorDisplay();
                     // 更新水印
-                    if(isWatermarkEnabled) {
+                    if(isWatermarkShowing) {
                         startWatermarkService();
                     }
                     if (dialog != null && dialog.isShowing()) {
@@ -142,7 +169,7 @@ public class FullScreenWatermarkFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 textWatermark.setTextSize(progress);
-                if (isWatermarkEnabled) {
+                if (isWatermarkShowing) {
                     startWatermarkService();
                 }
             }
@@ -157,7 +184,7 @@ public class FullScreenWatermarkFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 textWatermark.setRotationAngle(progress);
-                if (isWatermarkEnabled) {
+                if (isWatermarkShowing) {
                     startWatermarkService();
                 }
             }
@@ -173,7 +200,7 @@ public class FullScreenWatermarkFragment extends Fragment {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 textWatermark.setTextAlpha(progress);
                 updateColorDisplay();
-                if (isWatermarkEnabled) {
+                if (isWatermarkShowing) {
                     startWatermarkService();
                 }
             }
@@ -188,7 +215,7 @@ public class FullScreenWatermarkFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 textWatermark.setSpaceScale(progress);
-                if (isWatermarkEnabled) {
+                if (isWatermarkShowing) {
                     startWatermarkService();
                 }
             }
@@ -219,7 +246,7 @@ public class FullScreenWatermarkFragment extends Fragment {
                     expireUnitSpinner.setAdapter(adapter);
                     expireUnitSpinner.setSelection(textWatermark.getExpireUnit());
                 }
-                if (isWatermarkEnabled) {
+                if (isWatermarkShowing) {
                     startWatermarkService();
                 }
             }
@@ -238,7 +265,7 @@ public class FullScreenWatermarkFragment extends Fragment {
                 if (!charSequence.toString().isEmpty()) {
                     textWatermark.setExpireNum(charSequence.toString());
                 }
-                if (isWatermarkEnabled) {
+                if (isWatermarkShowing) {
                     startWatermarkService();
                 }
             }
@@ -252,7 +279,7 @@ public class FullScreenWatermarkFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 textWatermark.setExpireUnit(position);
-                if (isWatermarkEnabled) {
+                if (isWatermarkShowing) {
                     startWatermarkService();
                 }
             }
@@ -276,7 +303,7 @@ public class FullScreenWatermarkFragment extends Fragment {
             // 设置水印内容
             textWatermark.setText(editText);
             // 按钮逻辑
-            if (!isWatermarkEnabled) {
+            if (!isWatermarkShowing) {
                 startWatermarkService();
             } else {
                 stopWatermarkService();
@@ -323,26 +350,37 @@ public class FullScreenWatermarkFragment extends Fragment {
         }
         Intent intent = new Intent(requireContext(), FullWatermarkService.class);
         intent.putExtra("text_watermark", textWatermark);
-        ComponentName startFlag = requireContext().startService(intent);
-        if (startFlag != null) {
-            isWatermarkEnabled = true;
-            showButton.setText("关闭水印");
-            showButton.setSelected(true);
-        }
+        requireContext().startService(intent);
     }
 
     private void stopWatermarkService() {
-        boolean stopFlag = requireContext().stopService(new Intent(requireContext(), FullWatermarkService.class));
-        if (stopFlag) {
-            isWatermarkEnabled = false;
-            showButton.setText("开启水印");
-            showButton.setSelected(false);
-        }
+        requireContext().stopService(new Intent(requireContext(), FullWatermarkService.class));
     }
 
 
     @Override
+    public void onStart() {
+        super.onStart();
+        // 注册广播接收器
+        Log.d("WatermarkDebug", "注册广播接收器");
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(FullWatermarkService.ACTION_SERVICE_STARTED);
+        filter.addAction(FullWatermarkService.ACTION_SERVICE_DESTROYED);
+        ContextCompat.registerReceiver(
+                requireContext(),
+                serviceStatusReceiver,
+                filter,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+        );
+    }
+
+    @Override
     public void onDestroy() {
+        // 注销广播接收器
+        Log.d("WatermarkDebug", "注销广播接收器");
+        if (serviceStatusReceiver != null) {
+            requireContext().unregisterReceiver(serviceStatusReceiver);
+        }
         // 关闭水印
         stopWatermarkService();
         super.onDestroy();

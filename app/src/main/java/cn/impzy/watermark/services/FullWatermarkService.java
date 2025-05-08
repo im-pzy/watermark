@@ -9,6 +9,7 @@ import android.graphics.Point;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
@@ -18,6 +19,8 @@ public class FullWatermarkService extends Service {
     private WindowManager windowManager;
     private ImageView watermarkView;
     TextWatermark textWatermark;
+    public static final String ACTION_SERVICE_STARTED = "cn.impzy.watermark.SERVICE_STARTED";
+    public static final String ACTION_SERVICE_DESTROYED = "cn.impzy.watermark.SERVICE_DESTROYED";
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -57,6 +60,9 @@ public class FullWatermarkService extends Service {
             textWatermark = (TextWatermark) intent.getSerializableExtra("text_watermark");
             if (textWatermark != null) {
                 showWatermark(textWatermark);
+                // 发送广播通知 Service 被启动
+                Log.d("WatermarkDebug", "发送Service启动广播");
+                sendBroadcast(new Intent(ACTION_SERVICE_STARTED));
             }
         }
         return START_STICKY;
@@ -77,5 +83,9 @@ public class FullWatermarkService extends Service {
     public void onDestroy() {
         super.onDestroy();
         windowManager.removeView(watermarkView);
+        // 发送广播通知 Service 被销毁
+        Log.d("WatermarkDebug", "发送Service销毁广播");
+        Intent intent = new Intent(ACTION_SERVICE_DESTROYED);
+        sendBroadcast(intent);
     }
 }
