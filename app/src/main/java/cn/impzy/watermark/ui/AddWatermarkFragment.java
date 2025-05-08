@@ -61,7 +61,7 @@ public class AddWatermarkFragment extends Fragment {
     private View colorSelector;
     private SeekBar textSizeSeekBar,rotationAngleSeekBar,textAlphaSeekBar,spaceScaleSeekBar;
     private AppCompatSpinner timeTypeSpinner;
-    private TextView expireLable;
+    private TextView expireLabel;
     private EditText expireNumEditText;
     private AppCompatSpinner expireUnitSpinner;
     private Bitmap originalBitmap;
@@ -86,7 +86,7 @@ public class AddWatermarkFragment extends Fragment {
         textAlphaSeekBar = view.findViewById(R.id.textAlphaSeekBar);
         spaceScaleSeekBar = view.findViewById(R.id.spaceScaleSeekBar);
         timeTypeSpinner = view.findViewById(R.id.timeTypeSpinner);
-        expireLable = view.findViewById(R.id.expireLabel);
+        expireLabel = view.findViewById(R.id.expireLabel);
         expireNumEditText = view.findViewById(R.id.expireNumEditText);
         expireUnitSpinner = view.findViewById(R.id.expireUnitSpinner);
         saveButton = view.findViewById(R.id.saveButton);
@@ -222,11 +222,11 @@ public class AddWatermarkFragment extends Fragment {
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 textWatermark.setTimeType(position);
                 if (position == 0) {
-                    expireLable.setEnabled(false);
+                    expireLabel.setEnabled(false);
                     expireNumEditText.setEnabled(false);
                     expireUnitSpinner.setEnabled(false);
                 } else {
-                    expireLable.setEnabled(true);
+                    expireLabel.setEnabled(true);
                     expireNumEditText.setEnabled(true);
                     expireUnitSpinner.setEnabled(true);
                     // 根据不同的timeType设置有效期单位
@@ -286,7 +286,7 @@ public class AddWatermarkFragment extends Fragment {
                 Toast.makeText(requireContext(), "水印内容为空", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // 检查权限并执行对应代码
+            // 检查权限并执行对应代码(执行由回调函数完成)
             checkStoragePermission();
         });
 

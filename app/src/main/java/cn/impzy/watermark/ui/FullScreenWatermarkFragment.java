@@ -5,7 +5,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
@@ -43,7 +42,6 @@ public class FullScreenWatermarkFragment extends Fragment {
     private AppCompatSpinner expireUnitSpinner;
     private Button showButton;
     private boolean isWatermarkEnabled = false;
-    private static final int REQUEST_CODE_PICK_OVERLAY_PERMISSION = 1001;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -296,7 +294,7 @@ public class FullScreenWatermarkFragment extends Fragment {
             // 能否直接跳转到这个app的所有权限界面设置
             overlayPermissionLauncher.launch(intent);
             Toast.makeText(requireContext(), "请选择\"印\"并开启权限", Toast.LENGTH_SHORT).show();
-            return false;
+            return false;    // 这里不自动开启水印，因为还要检查水印文本是否为空
         } else {
             return true;
         }
