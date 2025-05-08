@@ -42,6 +42,10 @@ public class FullWatermarkService extends Service {
                         WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |      // 允许窗口占用整个屏幕
                         WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR,     // 允许窗口延申到装饰区
                 PixelFormat.TRANSLUCENT);
+        // 安卓12新特性，透明度≤0.8才可穿透触摸事件
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            params.alpha = 0.8f;
+        }
 
         // 添加悬浮视图到WindowManager
         windowManager.addView(watermarkView, params);
