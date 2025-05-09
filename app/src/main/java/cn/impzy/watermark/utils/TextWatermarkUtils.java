@@ -1,4 +1,4 @@
-package cn.impzy.watermark.utils;
+package cn.impzy.watermarker.utils;
 
 import static java.lang.Integer.max;
 import static java.lang.Integer.min;
@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import cn.impzy.watermark.TextWatermark;
+import cn.impzy.watermarker.TextWatermark;
 
 public class TextWatermarkUtils {
     public static final String[] EXPIRE_UNIT_DATE = {"年","个月","天"};

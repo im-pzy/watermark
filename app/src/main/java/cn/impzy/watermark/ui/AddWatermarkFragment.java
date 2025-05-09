@@ -1,4 +1,4 @@
-package cn.impzy.watermark.ui;
+package cn.impzy.watermarker.ui;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -41,10 +41,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Objects;
 
-import cn.impzy.watermark.R;
-import cn.impzy.watermark.TextWatermark;
-import static cn.impzy.watermark.utils.TextWatermarkUtils.drawTextWatermark;
-import static cn.impzy.watermark.utils.TextWatermarkUtils.scaleBitmap;
+import cn.impzy.watermarker.R;
+import cn.impzy.watermarker.TextWatermark;
+import static cn.impzy.watermarker.utils.TextWatermarkUtils.drawTextWatermark;
+import static cn.impzy.watermarker.utils.TextWatermarkUtils.scaleBitmap;
 
 
 public class AddWatermarkFragment extends Fragment {

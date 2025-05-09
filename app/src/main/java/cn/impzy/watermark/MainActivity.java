@@ -1,4 +1,4 @@
-package cn.impzy.watermark;
+package cn.impzy.watermarker;
 
 import android.os.Bundle;
 import androidx.annotation.Nullable;

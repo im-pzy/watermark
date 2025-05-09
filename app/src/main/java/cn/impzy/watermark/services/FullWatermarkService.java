@@ -1,6 +1,6 @@
-package cn.impzy.watermark.services;
+package cn.impzy.watermarker.services;
 
-import static cn.impzy.watermark.utils.TextWatermarkUtils.drawFullScreenTextWatermark;
+import static cn.impzy.watermarker.utils.TextWatermarkUtils.drawFullScreenTextWatermark;
 
 import android.app.Service;
 import android.content.Intent;
@@ -12,7 +12,7 @@ import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import cn.impzy.watermark.TextWatermark;
+import cn.impzy.watermarker.TextWatermark;
 
 public class FullWatermarkService extends Service {
     private WindowManager windowManager;

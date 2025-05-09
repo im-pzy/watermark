@@ -1,4 +1,4 @@
-package cn.impzy.watermark.ui;
+package cn.impzy.watermarker.ui;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -26,9 +26,9 @@ import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
-import cn.impzy.watermark.R;
-import cn.impzy.watermark.TextWatermark;
-import cn.impzy.watermark.services.FullWatermarkService;
+import cn.impzy.watermarker.R;
+import cn.impzy.watermarker.TextWatermark;
+import cn.impzy.watermarker.services.FullWatermarkService;
 
 public class FullScreenWatermarkFragment extends Fragment {
     private TextWatermark textWatermark = new TextWatermark();
