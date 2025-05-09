@@ -42,7 +42,7 @@ public class TextWatermarkUtils {
         textPaint.setTextAlign(Paint.Align.LEFT);   // 对齐方式
 
         // 设置水印文本
-        String time = "";
+        String time;
         int timeType = textWatermark.getTimeType();
         String expireNum = textWatermark.getExpireNum();
         int expireUnit = textWatermark.getExpireUnit();
