@@ -1,4 +1,4 @@
-package cn.impzy.watermark.ui;
+package cn.impzy.watermarker.ui;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -44,12 +44,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Objects;
 
-import cn.impzy.watermark.R;
-import cn.impzy.watermark.TextWatermark;
-import cn.impzy.watermark.utils.TextWatermarkUtils;
+import cn.impzy.watermarker.R;
+import cn.impzy.watermarker.TextWatermark;
+import cn.impzy.watermarker.utils.TextWatermarkUtils;
 
-import static cn.impzy.watermark.utils.TextWatermarkUtils.drawTextWatermark;
-import static cn.impzy.watermark.utils.TextWatermarkUtils.scaleBitmap;
+import static cn.impzy.watermarker.utils.TextWatermarkUtils.drawTextWatermark;
+import static cn.impzy.watermarker.utils.TextWatermarkUtils.scaleBitmap;
 
 import com.google.android.material.snackbar.Snackbar;
 

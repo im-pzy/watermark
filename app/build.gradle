@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'cn.impzy.watermark'
+    namespace 'cn.impzy.watermarker'
     compileSdk 34
 
     defaultConfig {
-        applicationId "cn.impzy.watermark"
+        applicationId "cn.impzy.watermarker"
         minSdk 23
         targetSdk 34
         versionCode 1

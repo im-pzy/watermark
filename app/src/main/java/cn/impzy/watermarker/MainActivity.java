@@ -1,4 +1,4 @@
-package cn.impzy.watermark;
+package cn.impzy.watermarker;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
             infoView.findViewById(R.id.projectAddressButton).setOnClickListener(v -> {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("https://github.com/im-pzy/watermark"));
+                intent.setData(Uri.parse("https://github.com/im-pzy/watermarker"));
                 startActivity(intent);
             });
 

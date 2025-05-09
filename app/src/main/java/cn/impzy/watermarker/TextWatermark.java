@@ -1,4 +1,4 @@
-package cn.impzy.watermark;
+package cn.impzy.watermarker;
 
 import android.graphics.Color;
 
@@ -129,9 +129,9 @@ public class TextWatermark implements Serializable{
 
     // 静态工厂方法
     public static TextWatermark forAddWatermark() {
-        TextWatermark watermark = new TextWatermark();
-        watermark.setTextColor(Color.WHITE);
-        watermark.setTextAlpha(128);
-        return watermark;
+        TextWatermark textWatermark = new TextWatermark();
+        textWatermark.setTextColor(Color.WHITE);
+        textWatermark.setTextAlpha(128);
+        return textWatermark;
     }
 }
