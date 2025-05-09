@@ -36,15 +36,6 @@
         android:background="#DDDDDD"/>
 
     <TextView
-        android:id="@+id/checkUpdateButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="检查更新"
-        android:gravity="center_vertical"
-        android:drawableEnd="@drawable/ic_arrow_right"/>
-
-    <TextView
         android:id="@+id/projectAddressButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

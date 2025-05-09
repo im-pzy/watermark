@@ -54,11 +54,6 @@ public class MainActivity extends AppCompatActivity {
             TextView versionTextView = infoView.findViewById(R.id.versionTextView);
             versionTextView.setText("版本 " + BuildConfig.VERSION_NAME);
 
-            infoView.findViewById(R.id.checkUpdateButton).setOnClickListener(v -> {
-                Toast.makeText(this, "正在检查更新...", Toast.LENGTH_SHORT).show();
-                // TODO: 实现检查更新逻辑
-            });
-
             infoView.findViewById(R.id.projectAddressButton).setOnClickListener(v -> {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse("https://github.com/im-pzy/watermarker"));
